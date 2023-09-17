@@ -308,7 +308,89 @@ $$g(X) \approx y$$
 <a id="05-model-selection"></a>
 ## 1.5 Model Selection Process
 - The Modeling-Step in `CRISP-DM`
+![modeling](imgs/crisp_dm_modeling.jpg)
 
+### Modeling
+- **Which model to choose?**
+    - Logistic Regression
+    - Decision Tree
+    - Neural Network
+    - ...
+
+- We need to find out what model works well in the given situation / problem
+
+### Selecting the best model
+- Generalization-Property of a ML-Model
+    - An important part of training the model is, that the model should be also reasonably good on unseen data
+    - To obtain insight into the generalization of the model, the data is split up into 2 parts
+        - Train-set (e.g. 80% of the original data)
+        - Validation-set (e.g. 20% of the original data; the rest of the data)
+
+#### Validatopm-Set
+- Contains the data for training the ML-model
+    - $(X, y) \rightarrow g(X)\approx y$
+    - Large part of the original data
+
+#### Test-Set or Validation-Set
+- Contains data that was not seen during training of the ML-model
+    - $(X_v, y_v) \rightarrow g(X_v) \approx \hat{y}_v$
+    - No training, only prediction and evaluation is done with this data
+    - True results $y_v$ are compared with predicted results $\hat{y}_v$
+    - Small part of the original data
+
+### Making Predictions
+- **Example**:
+    - everything with a probability of $p > 0.5$ is classified as `True` / 1 and everything else as `False` / 0.
+    ```python
+    # prediction (ŷ_v)  # target (y_v)  # correct
+       0.8 -> 1              1              1
+       0.7 -> 1              0              0
+       0.6 -> 1              1              1
+       0.1 -> 0              0              1
+       0.9 -> 1              1              1
+       0.6 -> 1              0              0
+    
+    # Ratio of correct predictions (accuracy): 4/6 = 2/3 = 66.66%
+    ```
+
+#### Scoring
+- Different model types (and parameters) are tried out and metrics like accuracy are compared, to find the best model (here: $g_i$)
+
+- **Example**:
+    | **Model**($g_i$) | **Type**                 |  **Accuracy** |
+    | ---------------- | ------------------------ | ------------- |
+    | $g_1$            | Logistic Regression (LR) |    66%        | 
+    | $g_2$            | Decision Tree (DT)       |    60%        |
+    | $g_3$            | Random Forest (RT)       |    67%        |
+    | $g_4$            | Neural Network (NN)      |    80%        |
+    | $\dots$          | $\dots$                  | $\dots$       |
+    - The Neural Network here has the highest accuracy (80%) and is therefore chosen
+
+### Multiple Comparison Problem
+- A model could just get lucky and produce the correct results by pure chance and is therefore preferred, however this is mostly not representative of the capabilities of the model
+- A new approach for subdividing the original dataset can be used here
+
+### Validation & Test
+![imgs](imgs/train_val_test.drawio.png)
+- The subdivision of the dataset here is only an example and the percentages could be different depending on the situation
+- The `Test`-Set has do be "hidden" until the end (after Training and Evaluation)
+- The `Test`-Set is used to check, that the "best" model didn't just get lucky during the model evaluation
+
+### The 6 Steps of Model Selection
+- Steps *2.* and *3.* are repeated for many models and configurations
+
+1. **Split the dataset**
+    - Train-Set
+    - Valiations-Set
+    - Test-Set
+2. **Training the Model**
+3. **Validating the Model (Evaluation)**
+    - Get different metrics for model choice
+4. **Select the best Model**
+    - Selection based on the metrics from step *3.*
+5. **Test the best Model**
+6. **Check / Compare performance of model**
+    - Are metrics on validation- and test-set consistent?
 
 <a id="06-environment"></a>
 ## 1.6 Setting up the Environment
@@ -328,14 +410,68 @@ conda install numpy pandas scikit-learn seaborn jupyter
 <a id="07-numpy"></a>
 ## 1.7 Introduction to NumPy
 
+The Notebook: [07-numpy.ipynb](notebooks/07-numpy.ipynb)
+
 <a id="08-linear-algebra"></a>
 ## 1.8 Linear Algebra Refresher
+
+The Notebook: [08-linear-algebra.ipynb](notebooks/08-linear-algebra.ipynb)
+
 
 <a id="09-pandas"></a>
 ## 1.9 Introduction to Pandas
 
+The Notebook: [09-pandas.ipynb](notebooks/09-pandas.ipynb)
+
+
 <a id="10-summary"></a>
 ## 1.10 Summary
+
+### 1.1 Introduction to ML
+- What are features ($X$) and labels / targets ($y$)
+- $(X, y)$ used to get a model $g(\cdot)$
+- Model can be for prediction
+
+### 1.2 Rules vs. ML
+
+### 1.3 Supervised Machine Learning
+- $g(X) \approx y$
+    - $X$: Features
+    - $y$: Targets
+    - $g$: Model
+
+
+### 1.4 CRISP-DM
+- ML-Project Cycle
+![crisp-dm](imgs/crisp_dm.jpg)
+
+### 1.5 Model Selection
+1. Split data into train / validation / test
+2. Train a model
+3. Validate it
+4. Select the best model
+5. Test it
+
+### 1.6 Environment
+- Install `Python`, `Numpy`, `Pandas`, `Matplotlib` and `Scikit-Learn`
+- Anaconda is the easiest option
+- Creating account on AWS
+
+### 1.7 Introduction to NumPy
+Code Syntax.
+
+### 1.8 Linear Algebra
+- **Multiplication**
+    - `Scalar * Vector` or `Scalar * Matrix` (Element-wise): 
+        - $\alpha\cdot v, \alpha\cdot V$
+    - `Vector * Vector` (Element-wise, Dot-product): 
+        - $u\cdot v, u^Tv$
+    - `Matrix * Vector`:
+        - $Uv$
+    - `Matrix * Matrix`:
+        - $UV$
+### 1.9 Introduction to Pandas
+Code Syntax.
 
 <a id="homework"></a>
 ## 1.11 Homework
