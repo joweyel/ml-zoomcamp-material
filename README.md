@@ -16,4 +16,6 @@ Machine Learning Engineering repository with my work during the ML Zoomcamp by [
 * [Course Playlist: Only 2023 Live videos & homeworks](https://www.youtube.com/watch?v=a7phcSmuNY0&list=PL3MmuxUbc_hJo_PzMibLDcEGyazxYAtV0)
 
 
-### 1. [Introduction to Machine Learning](1-intro)
+### 1. [Introduction to Machine Learning](01-intro)
+
+### 2. [Machine Learning for Regression](02-regression)

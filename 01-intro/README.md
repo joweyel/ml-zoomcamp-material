@@ -475,3 +475,6 @@ Code Syntax.
 
 <a id="homework"></a>
 ## 1.11 Homework
+
+- **Questions:** [here](homework/homework.md)
+- **Solutions:** [here](homework/solution.ipynb)
