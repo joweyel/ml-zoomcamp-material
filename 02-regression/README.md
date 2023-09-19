@@ -118,17 +118,38 @@ $$\Rightarrow \mathbf{w}^* = \left(\mathbf{X}^T\mathbf{X}\right)^{-1}\mathbf{X}^
 <a id="08-baseline-model"></a>
 ## 2.8 Baseline model for car price prediction project
 
+- Section 2.8 in Notebook [here](notebooks/02-price-prediction.ipynb)
+
 <a id="09-rmse"></a>
 ## 2.9 Root mean squared error
+
+- Section 2.9 in Notebook [here](notebooks/02-price-prediction.ipynb)
+
+- Evaluation Metric for Regression Models
+- Computes the square-root of the average squared error
+    - $\text{RMSE}(y, \hat{y}) = \sqrt{\frac{1}{m}\sum_{i=1}^m (y_i - \hat y_i)^2}$
 
 <a id="10-car-price-validation"></a>
 ## 2.10 Using RMSE on validation data
 
+- Section 2.10 in Notebook [here](notebooks/02-price-prediction.ipynb)
+
+- **Summary:** Evaluating the predictions from the validation-set with the RMSE-Metric from Section 2.9
+
+
 <a id="11-feature-engineering"></a>
 ## 2.11 Feature engineering
 
+- Section 2.11 in Notebook [here](notebooks/02-price-prediction.ipynb)
+
+- **Summary:** Creating new features could help reduce the error of the model.
+
+
 <a id="12-categorical-variables"></a>
 ## 2.12 Categorical variables
+
+- Section 2.12 in Notebook [here](notebooks/02-price-prediction.ipynb)
+
 
 <a id="13-regularization"></a>
 ## 2.13 Regularization
