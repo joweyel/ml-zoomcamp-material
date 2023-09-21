@@ -150,18 +150,51 @@ $$\Rightarrow \mathbf{w}^* = \left(\mathbf{X}^T\mathbf{X}\right)^{-1}\mathbf{X}^
 
 - Section 2.12 in Notebook [here](notebooks/02-price-prediction.ipynb)
 
+- **Summary**:
+    - Variables that can take on discrete values / category
+    - Can typically be found in columns with strings, however numerical variables can also be categorical
+
 
 <a id="13-regularization"></a>
 ## 2.13 Regularization
 
+- Section 2.13 in Notebook [here](notebooks/02-price-prediction.ipynb)
+
+- **Summary**:
+    - Problem in Gram-Matrix $(X^TX)^{-1}$
+        - Singular matrix, which is not invertible
+        - Matrix usually invertible, because of small numerical errors in the matrix
+        - Resulting parameter become very large
+    - Regularization adds a value to the diagonal of the gram matrix, that influences the eigenvalues of the matrix s.t. the inversion process becomes more stable and steers away from poles. 
+    - **Before:** 
+        - $w = (X^TX)^{-1}X^Ty$
+    - **After:** 
+        - $w_r = (X^TX + rI)^{-1}X^Ty$
+
 <a id="14-tuning-model"></a>
 ## 2.14 Tuning the model
+
+- Section 2.14 in Notebook [here](notebooks/02-price-prediction.ipynb)
+
+- **Summary**:
+    - Finding the best parameters to reduce the evaluation metric as much as possible
+    - Important step during most machine learning training-procedures
 
 <a id="15-using-model"></a>
 ## 2.15 Using the model
 
+- Section 2.15 in Notebook [here](notebooks/02-price-prediction.ipynb)
+
+- **Summary**:
+    - Using the "full"-dataset (train-data and validation-data) as one dataset
+    - Evaluation done on test-dataset
+
+
 <a id="16-summary"></a>
 ## 2.16 Car price prediction project summary
+
+- Section 2.16 in Notebook [here](notebooks/02-price-prediction.ipynb)
+- Detailed explanation [here](https://www.youtube.com/watch?v=_qI01YXbyro&list=PL3MmuxUbc_hIhxl5Ji8t4O6lPAOpHaCLR&index=26)
 
 <a id="17-explore-more"></a>
 ## 2.17 Explore more
