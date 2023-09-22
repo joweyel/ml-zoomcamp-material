@@ -16,7 +16,6 @@
 - 2.14 [Tuning the model](#14-tuning-model)
 - 2.15 [Using the model](#15-using-model)
 - 2.16 [Car price prediction project summary](#16-summary)
-- 2.17 [Explore more](#17-explore-more)
 - 2.18 [Homework](#homework)
 
 
@@ -196,8 +195,8 @@ $$\Rightarrow \mathbf{w}^* = \left(\mathbf{X}^T\mathbf{X}\right)^{-1}\mathbf{X}^
 - Section 2.16 in Notebook [here](notebooks/02-price-prediction.ipynb)
 - Detailed explanation [here](https://www.youtube.com/watch?v=_qI01YXbyro&list=PL3MmuxUbc_hIhxl5Ji8t4O6lPAOpHaCLR&index=26)
 
-<a id="17-explore-more"></a>
-## 2.17 Explore more
 
 <a id="homework"></a>
 ## 2.18 Homework
+
+The Tasks can be found [here](homework/homework.md) and the Solutions [here](homework/solution.ipynb).
