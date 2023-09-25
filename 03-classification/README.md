@@ -19,6 +19,22 @@
 <a id="01-churn-project"></a>
 ## 3.1 Churn prediction project
 
+### Churn Prediction
+- "Churn" is the process of stopping to rely on the services of one company and moving to another company for those services 
+- Predicting which customers are about to churn
+- Cusomters are scored with probabilities to find out which customer is most likely to churn
+- Goal is to find possible causes of "churn" and how to mitigate them, in order to hold a customer
+    - **Example:** Sending a customer a promotional email with an interesting offer
+- Churn Prediction is a `Binary Classification`-Problem
+
+### Binary Classification
+$$g(x_i) \approx y_i$$
+- $x_i$: $i$-th customer (it's features)
+- $y_i\in\{0, 1\}$: Binary label 
+
+At inference you obtain the likelihood of churning from the model $g(x_i)$, which is in $[0, 1]$.
+
+
 <a id="02-data-preparation"></a>
 ## 3.2 Data preparation
 
