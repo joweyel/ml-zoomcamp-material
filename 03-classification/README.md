@@ -19,6 +19,8 @@
 <a id="01-churn-project"></a>
 ## 3.1 Churn prediction project
 
+**The notebook of this section**: [section3-notebook](notebooks/section3-notebook.ipynb) 
+
 ### Churn Prediction
 - "Churn" is the process of stopping to rely on the services of one company and moving to another company for those services 
 - Predicting which customers are about to churn
@@ -38,11 +40,30 @@ At inference you obtain the likelihood of churning from the model $g(x_i)$, whic
 <a id="02-data-preparation"></a>
 ## 3.2 Data preparation
 
+**Summary**:
+- Required for better usability of data
+- Getting an overview over the data (not yet EDA)
+- In this step data is read in and pre-processed
+    - Missing data is handled (replacing missing values, dropping rows with missing values, ...)
+- Type conversions of columns are done, if required
+
+
 <a id="03-validations"></a>
 ## 3.3 Setting up the validation framework
 
+**Summary**:
+- Splitting data in the training-/validation- und test-data
+- 2-step approach is used to obtain a 3-way split of the data
+    - *1st split*: Full-Train (80%), Test (20%)
+    - *2nd split*: Full-Train $\rightarrow$ Train (60%), Val (20%)
+
 <a id="04-eda"></a>
 ## 3.4 EDA
+
+**Summary**:
+- Important step in machine learning and data science
+- Used to get a deeper insight into the data-set at hand
+- Extracted knowledge from this step can be beneficial or even crucial for successfull training
 
 <a id="05-risk"></a>
 ## 3.5 Feature importance: Churn rate and risk ratio
