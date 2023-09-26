@@ -40,7 +40,6 @@ At inference you obtain the likelihood of churning from the model $g(x_i)$, whic
 <a id="02-data-preparation"></a>
 ## 3.2 Data preparation
 
-**Summary**:
 - Required for better usability of data
 - Getting an overview over the data (not yet EDA)
 - In this step data is read in and pre-processed
@@ -51,7 +50,6 @@ At inference you obtain the likelihood of churning from the model $g(x_i)$, whic
 <a id="03-validations"></a>
 ## 3.3 Setting up the validation framework
 
-**Summary**:
 - Splitting data in the training-/validation- und test-data
 - 2-step approach is used to obtain a 3-way split of the data
     - *1st split*: Full-Train (80%), Test (20%)
@@ -60,22 +58,65 @@ At inference you obtain the likelihood of churning from the model $g(x_i)$, whic
 <a id="04-eda"></a>
 ## 3.4 EDA
 
-**Summary**:
 - Important step in machine learning and data science
 - Used to get a deeper insight into the data-set at hand
 - Extracted knowledge from this step can be beneficial or even crucial for successfull training
+- Visualization of data is an important component in EDA
+    - Relations of data could be discovered by comparing data with different plots
 
 <a id="05-risk"></a>
 ## 3.5 Feature importance: Churn rate and risk ratio
 
+- Used for categorical variables
+- Churn rate is the number of churning customers divided by all customers
+- Churn rate can also be more granular by looking at the churn rate for certain features
+    - *Example Question*: are male or female customers more likely to churn?
+
+- **Feature-Importance**
+    1. **Difference** = GLOBAL - GROUP
+        - $\text{Difference} > 0$: Group is less likely to churn
+        - $\text{Difference} < 0$: Group is more likely to churn
+    2. **Risk Ratio** = GROUP / GLOBAL
+        - $\text{Risk} > 1$: Group is more likely to churn
+        - $\text{Risk} < 1$: Group is less likely to churn
+
+- Both Difference and Risk Ratio tell us the same information, but in a different way.
+- Only tells the importance of a certain value of a feature but not the feature overall
+
+
 <a id="06-mutual-info"></a>
 ## 3.6 Feature importance: Mutual information
+
+- Used for categorical variables
+- Tells us the importance of a feature for a model
+- **Mutual information**: 
+    - Measure of mutual dependence between 2 varaibles
+    - The amount of information we get about one variable by ovserving another variable
+- **Application here**:
+    - How much do we learn about the variable `churn` by observing another variable in the data?
+
 
 <a id="07-correlation"></a>
 ## 3.7 Feature importance: Correlation
 
+- Link: https://en.wikipedia.org/wiki/Pearson_correlation_coefficient
+
+- **Formula**: $r = \frac{\sum_i(x_i-\bar x)(y_i-\bar y)}{\sqrt{\sum_i(x_i-\bar x)^2\sum_i(y_i-\bar y)^2}}\in[0, 1]$
+
+- Used for numerical varaibles
+- Measures how much 2 variables change together / dependency between 2 variables
+    - If one variable grows, the other grows as well
+
+- **Example**: Correlation of `tenure` and `churn`
+    - <u>Positive</u> More `tenure` $\rightarrow$ Higher `churn`
+    - <u>Negative</u> More `tenure` $\rightarrow$ Less `churn`
+    - <u>Zero</u> No effec on `churn`
+
+
 <a id="08-ohe"></a>
 ## 3.8 One-hot encoding
+
+- Special type of numerical encoding of categorical variables, that can easily be read by ML models
 
 <a id="09-logistic-regression"></a>
 ## 3.9 Logistic regression
