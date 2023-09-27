@@ -117,6 +117,42 @@ At inference you obtain the likelihood of churning from the model $g(x_i)$, whic
 ## 3.8 One-hot encoding
 
 - Special type of numerical encoding of categorical variables, that can easily be read by ML models
+- Converts every categorical value into an vector of the length of the different possible categories within a varaible
+- Has a singular $1$ in it at the position of the corresponding class
+- **Example**:
+    - Given: $y\in\{1, 2, 3\}$, with 3 categories in it (the vector size)
+    - You get
+        - $y_1 = [1, 0, 0]^T$
+        - $y_2 = [0, 1, 0]^T$
+        - $y_2 = [0, 0, 1]^T$
+    
+    - A given set of target variables $\tilde y = [3, 1, 2, 1, 2, 2]$ will result in a matrix of 6 rows and 3 columns. The rows are for entries of the original $\tilde y$ and the columns are for encoding the value with $0$'s and one singular $1$.
+$$
+\text{1H-Encoding}([3, 1, 2, 1, 2, 2]) = 
+\begin{bmatrix}
+    0 & 0 & 1 \\
+    1 & 0 & 0 \\
+    0 & 1 & 0 \\
+    1 & 0 & 0 \\
+    0 & 1 & 0 \\
+    0 & 1 & 0 \\
+\end{bmatrix}
+$$
+
+Code:
+```python
+from sklearn.feature_extraction import DictVectorizer
+
+dv = DictVectorizer(sparse=False)
+# Create Dictionaries from dataframe
+dicts = df[columns].to_dict(orient="records")
+# Detect required categories needed for 1HE
+dv.fit(dicts)
+# Transform categorical values according to the learned properties of the data from `fit`
+data = dv.transfor(dicts)
+
+
+```
 
 <a id="09-logistic-regression"></a>
 ## 3.9 Logistic regression
