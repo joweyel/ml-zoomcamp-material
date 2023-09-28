@@ -149,16 +149,48 @@ dicts = df[columns].to_dict(orient="records")
 # Detect required categories needed for 1HE
 dv.fit(dicts)
 # Transform categorical values according to the learned properties of the data from `fit`
-data = dv.transfor(dicts)
+data = dv.transform(dicts)
 
-
+# `fit` and `transform` in one call
+data = dv.fit_transform(dicts)
 ```
 
 <a id="09-logistic-regression"></a>
 ## 3.9 Logistic regression
 
+- Linear model that is used for classification
+- Instead of $y\in\mathbb{R}$ like with Linear Regression, Logistic Regression has categorical outputs
+- Logistic regression takes the function $g(x_i)\approx y_i$ from Linear Regression and applies the sigmoid function $\sigma(z) = \frac{1}{1 + e^{-z}}$. This transforms the function to a probability, because the range of $\sigma\in[0, 1]$ for all possible inputs.
+    - $\sigma(g(x_i)\in\mathbb{R}) = \frac{1}{1 + e^{-(w_0 + w^Tx_i)}}\in[0, 1]$
+- Classification threshold is usually chosen at the center of the sigmoid function at $(x, y) = (0, 0.5)$.
+
+![sigmoid](imgs/sigmoid.png)
+
 <a id="10-training-log-reg"></a>
 ## 3.10 Training logistic regression with Scikit-Learn
+
+**Example code:**
+```python
+from sklearn.linear_model import LogisticRegression
+
+# Defining and Training LogReg-Model
+model = LogisticRegression()
+model.fit(X_train, y_train)
+
+# Get the prob. of positive result
+y_pred = model.predict_proba(X_val)[:, 1]
+churn_decision = (y_pred >= 0.5)  # list of booleans
+
+# Aggregation of results
+df_pred = pd.DataFrame()
+df_pred["probability"] = y_pred
+df_pred["prediction"] = churn_decision.astype(int)
+df_pred["actual"] = y_val
+df_pred["correct"] = df_pred["prediction"] == df_pred["actual"]
+
+# Accuracy metric results in %
+print(f"Accuracy: {df_pred['correct'].mean()*100.0:.2f}%")
+```
 
 <a id="11-log-reg-interpretation"></a>
 ## 3.11 Model interpretation
