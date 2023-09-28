@@ -13,8 +13,7 @@
 - 3.11 [Model interpretation](#11-log-reg-interpretation)
 - 3.12 [Using the model](#12-using-log-reg)
 - 3.13 [Summary](#13-summary)
-- 3.14 [Explore more](#14-explore-more)
-- 3.15 [Homework](#homework)
+- 3.14 [Homework](#homework)
 
 <a id="01-churn-project"></a>
 ## 3.1 Churn prediction project
@@ -195,14 +194,73 @@ print(f"Accuracy: {df_pred['correct'].mean()*100.0:.2f}%")
 <a id="11-log-reg-interpretation"></a>
 ## 3.11 Model interpretation
 
+- The Coefficients of a trained Logistic Regression model give information how certain features influence the output score
+- Model coefficients are often also called model "weights".
+- The magnitude of weights relate to the risk-ratio of the given feature
+
+**Example-Computation:**
+- **Used Features:** `contract`, `monthlycharges`, `tenure`
+- **Input**: $x_i = [\underbrace{1, 0, 0}_{\text{contract}}, \underbrace{50}_{\text{monthlycharges}}, \underbrace{5}_{\text{tenure}}]$
+- **Weights**: $w = [0.97, -0.025, -0.949, 0.027, -0.036]$
+
+$$
+\text{score} = w_0 + w^Tx_i = w_0 + \sum_j w_j\cdot x_{i,j} = \\
+\begin{align*}
+-2.47 &+ \underbrace{\mathbf{1}\cdot\overbrace{0.97}^{M} + \mathbf{0}\cdot\overbrace{(-0.025)}^{1Y} + \mathbf{0}\cdot\overbrace{(-0.949)}^{2Y}}_{\text{(contract)}} \quad\quad \text{with } x_{i,1:3}^{\text{contract}} = [1, 0, 0] \\
+      &+ \mathbf{50}\cdot 0.027 \quad\quad \text{(monthlycharges)} \\
+      &+ \mathbf{5}\cdot (-0.036) \quad\quad \text{(tenure)} \\
+      &= -0.337 \\
+      \sigma(\text{score} = -0.337) = 0.417 < 0.5 \quad \leadsto \quad \hat y = 0
+    
+\end{align*}
+$$
+    
+
 <a id="12-using-log-reg"></a>
 ## 3.12 Using the model
+
+**Code of Example usage**:
+```python
+### Data pre-processing ###
+# Training data
+dicts_train = df_train[categorical + numerical].to_dict(orient="records")
+dv = DictVectorizer(sparse=False)
+X_train = dv.fit_transform(dicts_train)
+y_train = df_train["churn"].values
+
+# Test data
+dicts_test = df_test[categorical + numerical].to_dict(orient="records")
+X_test = dv.transform(dicts_test)
+y_test = df_test["churn"].values
+
+### Training of LogReg model ###
+model = LogisticRegression()
+model.fit(X_full_train, y_full_train)
+
+# Computing of accuracy metric
+y_pred = model.predict_proba(X_test)[:, 1]
+churn_decision = (y_pred >= 0.5)
+accuracy = (churn_decision == y_test).mean()
+
+print(f"accuracy: {accuracy*100:.2f}%")
+```
 
 <a id="13-summary"></a>
 ## 3.13 Summary
 
-<a id="14-explore-more"></a>
-## 3.14 Explore more
+- **Feature importance**: 
+    - risk, mutual information, correlation
+- **One-hot encoding**: 
+    - can be implemented with `DictVectorizer`
+- **Logistic Regression**: 
+    - linear model like linear regression
+    - uses linear regression model as score and applies sigmoid function to it
+- **Output of Logistic Regression**: 
+    - probability
+- **Interpretation of weights/parameters**: 
+    - similar to linear regression
 
 <a id="homework"></a>
-## 3.15 Homework
+## 3.14 Homework
+- The Questions can be found [here](homework/homework.md)
+- The Answers can be found [here](homework/solution.ipynb)
