@@ -6,7 +6,7 @@ Machine Learning Engineering repository with my work during the ML Zoomcamp by [
     width="1000px" />
 </p>
 
-### Important Links
+## Important Links
 * [Pre-course Q&A session](https://www.youtube.com/watch?v=a7phcSmuNY0)
 * TODO Launch stream with course overview
 * [Course calendar](https://calendar.google.com/calendar/u/0/r?cid=cGtjZ2tkbGc1OG9yb2lxa2Vwc2g4YXMzMmNAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ&pli=1)
@@ -16,6 +16,10 @@ Machine Learning Engineering repository with my work during the ML Zoomcamp by [
 * [Course Playlist: Only 2023 Live videos & homeworks](https://www.youtube.com/watch?v=a7phcSmuNY0&list=PL3MmuxUbc_hJo_PzMibLDcEGyazxYAtV0)
 
 
-### 1. [Introduction to Machine Learning](01-intro)
+## 1. [Introduction to Machine Learning](01-intro)
 
-### 2. [Machine Learning for Regression](02-regression)
+## 2. [Machine Learning for Regression](02-regression)
+
+## 3. [Machine Learning for Classification](03-classification)
+
+## 4. [Evaluation Metrics for Classification](04-evaluation)

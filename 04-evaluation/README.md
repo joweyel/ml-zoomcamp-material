@@ -34,5 +34,11 @@
 <a id="07-cross-validation"></a>
 ## 4.7 Cross-Validation
 
-<a id="01-churn-project"></a>
-## 3.1 Churn prediction project
+<a id="08-summary"></a>
+## 4.8 Summary
+
+<a id="09-explore-more"></a>
+## 4.9 Explore more
+
+<a id="homework"></a>
+## 4.10 Homework
