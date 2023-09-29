@@ -221,6 +221,10 @@ $$
 
 **Code of Example usage**:
 ```python
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+
 ### Data pre-processing ###
 # Training data
 dicts_train = df_train[categorical + numerical].to_dict(orient="records")
@@ -238,9 +242,8 @@ model = LogisticRegression()
 model.fit(X_full_train, y_full_train)
 
 # Computing of accuracy metric
-y_pred = model.predict_proba(X_test)[:, 1]
-churn_decision = (y_pred >= 0.5)
-accuracy = (churn_decision == y_test).mean()
+y_pred = model.predict(X_test)
+accuracy = accuracy_score(y_test, y_pred)
 
 print(f"accuracy: {accuracy*100:.2f}%")
 ```
