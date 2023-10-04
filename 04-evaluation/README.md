@@ -89,9 +89,76 @@ There are clearly more non-churning chustomers. This directly results in an accu
 
 <a id="03-confusion-table"></a>
 ## 4.3 Confusion table
+- Table that is used to store different types of errors
+- **There are two types of errors**:
+    - <u>False Positive</u>: True (No churn) & Predicted (churn)
+    - <u>False Negative</u>: True (churn) & Predicted (No churn)
+
+- Visualization of the different possible predictions:
+
+![conf-tree](imgs/confusion_matrix.png)
+
+- In table form we get this (numbers come from this sections notebook!)
+
+**Predictions**
+|  True \ Predicted | $g(x_i) < t$  (Negative) | $g(x_i) \ge t$  (Positive) | 
+| ----------------- | ------------------------ | -------------------------- |
+| $y=0$ (Negative)  | **`TN`**: 922 (65%)      | **`FP`**: 101 (8%)         |
+| $y=1$ (Positive)  | **`FN`**: 176 (12%)      | **`TP`**: 210 (15%)        | 
+
+- We can derive the `Accuracy` metric from the values from the confusion matrix:
+     - $\text{accuracy} = \frac{\text{tp} + \text{tn}}{\text{tn} + \text{fp} + \text{fn} + \text{tp}} = \frac{\text{tp} + \text{tn}}{\text{\#all samples}}$
+
+### Conclusion
+- The confusion matrix helps to analyze what type of error we make
+
 
 <a id="04-precision-recall"></a>
 ## 4.4 Precision and Recall
+
+The metrics of this section can be constructed from the entries of the confusion matrix (`tp`, `tn`, `fp`, `fn`).
+
+### Precision Definition
+- Fraction of positive predictions that are correct
+- $\textbf{precision} = \frac{tp}{\text{\#positive}} = \frac{tp}{tp + fp}$
+```python
+# Computation example
+true label:      [1] [0] [1] [1]
+predicted churn: [1] [1] [1] [1]
+--------------------------------
+correct:         [1] [0] [1] [1] 
+tp = 3, fp = 1
+precision = tp / (tp + fp) = 3 / 4 = 0.75
+```
+
+## Recall Definition
+- Fraction of correctly identified positive examples (churning users)
+- $\textbf{recall} = \frac{tp}{tp + fn}$
+
+```python
+# Computation example           
+                    < t                   >= t 
+ true label:  [0] [0] [0] [1]   |   [1] [0] [1] [1]
+ predictions: [0] [0] [0] [0]   |   [1] [1] [1] [1]                
+
+correct (positive):       [0]       [1]     [1] [1]
+                          fn        tp      tp  tp
+tp = 3, fn = 1
+recall = tp / (tp + fn) = 3 / 4 = 0.75
+
+```
+
+### Why Accuracy is misleading
+We have the following results from the given data:
+- $\text{precision} = \frac{tp}{tp + fp} = 67\%\quad (33\%)$
+- $\text{recall} = \frac{tp}{tp + fn} = 54\%\quad (46\%)$
+- $\text{accuracy} = \frac{tp + tn}{tp + tn + fp + fn} = 80\%\quad (20\%)$
+
+**Insights from the 3 metrics**:
+- Even though the accuracy is relatively high, the model is not that good. This can be caused by imbalanced data coupled with a ill-chosen decision-treshold at $\tau = 0$ or $\tau = 1$.
+- To see if the model is good overall, you have to look at the `precision` and `recall` in conjunction with the `accuracy`.
+    - `Precision`: Looking at all the customers, that we think are abount to churn (tp + fp) and what fraction of this is correctly classified (tp) as churning.
+    - `Recall`: Looking at all the customers, that are actually churning (tp + fn) and what fraction of this is correctly classified (tp) as churning.
 
 <a id="05-roc"></a>
 ## 4.5 ROC Curves
