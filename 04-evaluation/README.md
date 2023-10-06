@@ -155,7 +155,7 @@ We have the following results from the given data:
 - $\text{accuracy} = \frac{tp + tn}{tp + tn + fp + fn} = 80\%\quad (20\%)$
 
 **Insights from the 3 metrics**:
-- Even though the accuracy is relatively high, the model is not that good. This can be caused by imbalanced data coupled with a ill-chosen decision-treshold at $\tau = 0$ or $\tau = 1$.
+- Even though the accuracy is relatively high, the model is not that good. This can be caused by imbalanced data coupled with a ill-chosen decision-threshold at $\tau = 0$ or $\tau = 1$.
 - To see if the model is good overall, you have to look at the `precision` and `recall` in conjunction with the `accuracy`.
     - `Precision`: Looking at all the customers, that we think are abount to churn (tp + fp) and what fraction of this is correctly classified (tp) as churning.
     - `Recall`: Looking at all the customers, that are actually churning (tp + fn) and what fraction of this is correctly classified (tp) as churning.
@@ -163,11 +163,79 @@ We have the following results from the given data:
 <a id="05-roc"></a>
 ## 4.5 ROC Curves
 
+- **R**eviever **O**perating **C**haracteristics
+- A way of describing the performance of binary classification methods
+- We are interestedin 2 numbers:
+    - `FPR`: False Positive Rate
+    - `TPR`: True Positive Rate
+- `FPR` and `TPR` can be computed from the confusion matrix
+    - `FPR` uses `tn` and `fp` (we want to minimize `fp`)
+    - `TPR` uses `fn` and `tp` (we want to maximize `tp`)
+
+
+|  true \ pred  | $g(x_i) < t$ (Negative) | $g(x_i) \ge t$ (Positive) |                 |
+| ------------- | ----------------------- | ------------------------- |---------------- |
+| $y = 0$       |        **`TN`**         |         **`FP`**          | $\text{FPR} = \frac{FP}{FP + TN}$ | 
+| $y = 1$       |        **`FN`**         |         **`TP`**          | $\text{TPR} = \frac{TP}{TP + FN}$| 
+
+- The ROC curve computes the `TPR` and `FPR` for all possible threshold.
+- Optimally we want to maximize the `TPR` and minimize the `FPR`.
+
+**Curve of Random Model**
+- Basically a binary coin-toss model
+- See section notebooks
+
+**Ideal Model**
+- The best model (usually not attainable)
+- See section notebook
+
+**ROC-Curve**
+- A plot of `FPR` on the x-axis and `TPR` on the y-axis
+- **Goal**: The curve should be as far away from the random curve (here: the linear line in the middle) and as near as possible to the top (1.0) of the plot
+
+![roc](imgs/roc.png)
+
+**Lets look at the curve of the `model` and analyze some points on it**
+
+![roc_extremes](imgs/roc_extremes.png)
+
+- *For reference*:
+    - $\text{TPR} = \frac{TP}{TP + FN}$
+    - $\text{FPR} = \frac{FP}{FP + TN}$
+
+- $\text{FPR} = \text{TPR} = 0$: This is the case when the decision threshold of the model is $1.0$.
+    - Everyone is predicted as false (`non-churning`) and s.t. the `tp`-values go to 0.
+    - There are no `fp`-values as well, since everything is classified as negative (`non-churning`)
+- $\text{FPR} = \text{TPR} = 1$: This is the case if the model predicts everything as true (`churning`), which means that the decision threshold is $t = 0.0$
+    - Everyone is predicted as true (`churning`), which means that all `tp`-values are correctly identified (100% / 1.0)
+    - Every `tn`-value is classified as positive, s.t. every instance of this class is miss-classified as `FP`, increasing the `FPR` to 100% 
+
+- **Lowering the threshold from 1.0**
+    - Increases the rate of `TP`, thus increasing the `TPR`
+    - `FPR` also increases a little bit, which is normal, since the model is often not the ideal model. You can see the differences between the ideal model and the trained model in the plot above, where the `TPR` for the ideal model shoots up, but the `FPR` does not increase.
+
+- If there is a ROC curve below the random baseline model, there is probably a flip in the sign of the results (positive is negative and vice versa)
+
 <a id="06-auc"></a>
 ## 4.6 ROC AUC
+- `AUC` stands for **A**reas **U**nder the **C**urve and tells us how good a classifier is
+    - The bigger the area, the better, since this implies that the `TPR` is high and the `FPR` is low
+
+![auc_models](imgs/auc_models.png)
+
+### Implementing the AUC function
+- See section notebook for the implementation
+
+### AUC interpretation
+- AUC tells use what is the probability that a randomly selected positive example has a score higher thant a randomly selected negative example.
+
+### Summary
+- ROC and AUC are popular metrics, that show how well a model separates positive and negative examples
 
 <a id="07-cross-validation"></a>
 ## 4.7 Cross-Validation
+
+
 
 <a id="08-summary"></a>
 ## 4.8 Summary
