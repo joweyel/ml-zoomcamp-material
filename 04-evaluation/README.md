@@ -235,13 +235,46 @@ We have the following results from the given data:
 <a id="07-cross-validation"></a>
 ## 4.7 Cross-Validation
 
+- Process that is used for parameter tuning (finding the best parameters)
+- Popular variant of Cross-Validation is K-Fold Cross-Validation, where the Trainig- and Validation-data is handled as 1 dataset (`Train-Full`) and split into `K` subsets of the same size. 
+    - **Big Datasets**: use few folds (for example $K = 2$ or $ K = 3$)
+    - **Small Datasets**: use many folds (for example $K = 10total=n_splits$ or more)
+- One of the `K` subsets is chosen as validation set after the model was trained on all other subsets.
+- The Training- and Validation-data changes at each iteration
+- The Test-data is not used for this process and is used for evaluating the obtained parameters.
+
+```
+Original:       [      Train      |  Val  |  Test  ]
+Merged:         [      Train Full         |  Test  ]
+K-Fold split:   [   1    |   2    |   3   |  Test  ]
+
+Example (K=3)          Train                      Val
+                [   1    |   2    ] => g(x) => [   3   ]  AUC(3)
+                [   1    |   3    ] => g(x) => [   2   ]  AUC(2)
+                [   2    |   3    ] => g(x) => [   1   ]  AUC(1)
+```
+- After `K` Training and Evaluation iterations the resulting AUC's get averaged: $\mu_{\text{AUC}} = \frac{1}{N}\sum_{i=1}^N \text{AUC}_i$
+- Training on the full training-dataset should not result in AUC'S that are that different than the AUC of the folds
 
 
 <a id="08-summary"></a>
 ## 4.8 Summary
+| **Concept**                        | **Meaning**
+| ---------------------------------- | -------------------------------------------------------------------------------- |
+| **`Metric`**                       | A single number that describes the performance of a model                        |
+| **`Accuracy`**                     | Fraction of correct answers; sometimes misleading                                |
+| **`Precision`** and **`Recall`**   | Less missleading when we have a class imbalance                                  |
+| **`ROC Curve`**                    | A way to evaluate the performance at all thresholds; okay to use with imbalance  |
+| **`K-Fold Cross-Validation`**      | More reliable estimate for performance (mean + std)                              |
 
 <a id="09-explore-more"></a>
 ## 4.9 Explore more
+- Check the precision and recall of the dummy classifier that always predict "`FALSE`"
+- **`F1 Score`**: $F_1 = 2\cdot\frac{P \cdot R}{P + R},\qquad P:=\text{Precision}, R:=\text{Recall}$
+- Evaluate `Precision` and `Recall` at different thresholds, plot `P` vs `R` - this way you will get the `Precision` / `Recall` curve (similar to the ROC curve)
+    - Area Under Precision-Recall (AUPR) is also a useful metric 
 
 <a id="homework"></a>
 ## 4.10 Homework
+- The Questions can be found [here](homework/homework.md)
+- The Answers can be found [here](homework/solution.ipynb)
