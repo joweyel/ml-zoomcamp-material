@@ -65,7 +65,7 @@ from sklearn.metrics import accuracy_score
 score = accuracy_score(y, y_pred)
 ```
 
-### Interpreting the first and last threshold ($t = 0$ and $t = 1$)
+### Interpreting the first and last threshold (t = 0 and t = 1)
 - $t = 1$: Here the threshold is set so high, that everything is classified as `False`
 - $t = 0$: Here the threshold is set so low, that everything is classified as `True` 
 
