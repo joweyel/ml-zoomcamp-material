@@ -70,21 +70,21 @@ score = accuracy_score(y, y_pred)
 - $t = 0$: Here the threshold is set so low, that everything is classified as `True` 
 
 ### Why bother? Comparing the accuracy of our model to the dummy model
-The model, that classifies every customer of non-churning ($t = 1$) still has an accuracy of about $73\%$. With this we now have 2 models:
+The model, that classifies every customer of non-churning ($t = 1$) still has an accuracy of about $73%$. With this we now have 2 models:
 | `Model`    | `Accuracy` |
 | ---------- | ---------- |
-|  Our Model |   $80\%$   |
-| Dummy Model|   $73\%$   |
+|  Our Model |   $80%$   |
+| Dummy Model|   $73%$   |
 
-There is only a $7\%$ difference between the best model and a "deficient" model. The accuracy is all nice and good, however ins such situations it can be insufficient and other metrics have to be looked at. 
+There is only a $7%$ difference between the best model and a "deficient" model. The accuracy is all nice and good, however ins such situations it can be insufficient and other metrics have to be looked at. 
 
 
 ### Issues due to class imbalances in datasets
 The relatively high accuracy in the dummy model is caused by class-imbalance. The distribution of the classes here is:
-- **Non-Churning**: $\approx 73\%$
-- **Churning**: $\approx 27\%$  
+- **Non-Churning**: $\approx 73%$
+- **Churning**: $\approx 27%$  
 
-There are clearly more non-churning chustomers. This directly results in an accuracy of $73\%$ in when threshold is $t = 1.0$. With such an imbalance you can achieve a reasonably good accuracy while applying a brute force "everything is true" or "everything is false" at the $0$ and $1$ thresholds. To get a better insight into the performance of the trained model, other metrics and different types of errors are being considered, that are examined in the following sections.
+There are clearly more non-churning chustomers. This directly results in an accuracy of $73%$ in when threshold is $t = 1.0$. With such an imbalance you can achieve a reasonably good accuracy while applying a brute force "everything is true" or "everything is false" at the $0$ and $1$ thresholds. To get a better insight into the performance of the trained model, other metrics and different types of errors are being considered, that are examined in the following sections.
 
 
 <a id="03-confusion-table"></a>
@@ -150,9 +150,9 @@ recall = tp / (tp + fn) = 3 / 4 = 0.75
 
 ### Why Accuracy is misleading
 We have the following results from the given data:
-- $\text{precision} = \frac{tp}{tp + fp} = 67\%$
-- $\text{recall} = \frac{tp}{tp + fn} = 54\%$
-- $\text{accuracy} = \frac{tp + tn}{tp + tn + fp + fn} = 80\%$
+- $\text{precision} = \frac{tp}{tp + fp} = 67%$
+- $\text{recall} = \frac{tp}{tp + fn} = 54%$
+- $\text{accuracy} = \frac{tp + tn}{tp + tn + fp + fn} = 80%$
 
 **Insights from the 3 metrics**:
 - Even though the accuracy is relatively high, the model is not that good. This can be caused by imbalanced data coupled with a ill-chosen decision-threshold at $t = 0$ or $t = 1$.
