@@ -150,9 +150,9 @@ recall = tp / (tp + fn) = 3 / 4 = 0.75
 
 ### Why Accuracy is misleading
 We have the following results from the given data:
-- $\text{precision} = \frac{tp}{tp + fp} = 67%$
-- $\text{recall} = \frac{tp}{tp + fn} = 54%$
-- $\text{accuracy} = \frac{tp + tn}{tp + tn + fp + fn} = 80%$
+- $\text{precision} = \frac{tp}{tp + fp} = 67\\%$
+- $\text{recall} = \frac{tp}{tp + fn} = 54\\%$
+- $\text{accuracy} = \frac{tp + tn}{tp + tn + fp + fn} = 80\\%$
 
 **Insights from the 3 metrics**:
 - Even though the accuracy is relatively high, the model is not that good. This can be caused by imbalanced data coupled with a ill-chosen decision-threshold at $t = 0$ or $t = 1$.
