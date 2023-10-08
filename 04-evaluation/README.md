@@ -55,7 +55,7 @@ print(f"accuracy: {acc:.2f} | {acc*100:.2f}%")
 
 
 ### Is the used churn threshold good?
-- The dscision threshold at $\tau = 0.5$ is not fixed but can be changed.
+- The dscision threshold at $t = 0.5$ is not fixed but can be changed.
 - Changing the threshold can change the accuracy (better or worse) and has to be tested with different values between $0$ and $1$.
 
 ### Accuracy metric from `scikit-learn`
@@ -65,12 +65,12 @@ from sklearn.metrics import accuracy_score
 score = accuracy_score(y, y_pred)
 ```
 
-### Interpreting the first and last threshold ($\tau = 0$ and $\tau = 1$)
-- $\tau = 1$: Here the threshold is set so high, that everything is classified as `False`
-- $\tau = 0$: Here the threshold is set so low, that everything is classified as `True` 
+### Interpreting the first and last threshold ($t = 0$ and $t = 1$)
+- $t = 1$: Here the threshold is set so high, that everything is classified as `False`
+- $t = 0$: Here the threshold is set so low, that everything is classified as `True` 
 
 ### Why bother? Comparing the accuracy of our model to the dummy model
-The model, that classifies every customer of non-churning ($\tau = 1$) still has an accuracy of about $73\%$. With this we now have 2 models:
+The model, that classifies every customer of non-churning ($t = 1$) still has an accuracy of about $73\%$. With this we now have 2 models:
 | `Model`    | `Accuracy` |
 | ---------- | ---------- |
 |  Our Model |   $80\%$   |
@@ -84,7 +84,7 @@ The relatively high accuracy in the dummy model is caused by class-imbalance. Th
 - **Non-Churning**: $\approx 73\%$
 - **Churning**: $\approx 27\%$  
 
-There are clearly more non-churning chustomers. This directly results in an accuracy of $73\%$ in when threshold is $\tau = 1.0$. With such an imbalance you can achieve a reasonably good accuracy while applying a brute force "everything is true" or "everything is false" at the $0$ and $1$ thresholds. To get a better insight into the performance of the trained model, other metrics and different types of errors are being considered, that are examined in the following sections.
+There are clearly more non-churning chustomers. This directly results in an accuracy of $73\%$ in when threshold is $t = 1.0$. With such an imbalance you can achieve a reasonably good accuracy while applying a brute force "everything is true" or "everything is false" at the $0$ and $1$ thresholds. To get a better insight into the performance of the trained model, other metrics and different types of errors are being considered, that are examined in the following sections.
 
 
 <a id="03-confusion-table"></a>
@@ -107,7 +107,7 @@ There are clearly more non-churning chustomers. This directly results in an accu
 | $y=1$ (Positive)  | **`FN`**: 176 (12%)      | **`TP`**: 210 (15%)        | 
 
 - We can derive the `Accuracy` metric from the values from the confusion matrix:
-     - $\text{accuracy} = \frac{\text{tp} + \text{tn}}{\text{tn} + \text{fp} + \text{fn} + \text{tp}} = \frac{\text{tp} + \text{tn}}{\text{\#all samples}}$
+     - $\text{accuracy} = \frac{\text{tp} + \text{tn}}{\text{tn} + \text{fp} + \text{fn} + \text{tp}}$
 
 ### Conclusion
 - The confusion matrix helps to analyze what type of error we make
@@ -120,7 +120,7 @@ The metrics of this section can be constructed from the entries of the confusion
 
 ### Precision Definition
 - Fraction of positive predictions that are correct
-- $\textbf{precision} = \frac{tp}{\text{\#positive}} = \frac{tp}{tp + fp}$
+- $\textbf{precision} = \frac{tp}{tp + fp}$
 ```python
 # Computation example
 true label:      [1] [0] [1] [1]
@@ -150,12 +150,12 @@ recall = tp / (tp + fn) = 3 / 4 = 0.75
 
 ### Why Accuracy is misleading
 We have the following results from the given data:
-- $\text{precision} = \frac{tp}{tp + fp} = 67\%\quad (33\%)$
-- $\text{recall} = \frac{tp}{tp + fn} = 54\%\quad (46\%)$
-- $\text{accuracy} = \frac{tp + tn}{tp + tn + fp + fn} = 80\%\quad (20\%)$
+- $\text{precision} = \frac{tp}{tp + fp} = 67\%$
+- $\text{recall} = \frac{tp}{tp + fn} = 54\%$
+- $\text{accuracy} = \frac{tp + tn}{tp + tn + fp + fn} = 80\%$
 
 **Insights from the 3 metrics**:
-- Even though the accuracy is relatively high, the model is not that good. This can be caused by imbalanced data coupled with a ill-chosen decision-threshold at $\tau = 0$ or $\tau = 1$.
+- Even though the accuracy is relatively high, the model is not that good. This can be caused by imbalanced data coupled with a ill-chosen decision-threshold at $t = 0$ or $t = 1$.
 - To see if the model is good overall, you have to look at the `precision` and `recall` in conjunction with the `accuracy`.
     - `Precision`: Looking at all the customers, that we think are abount to churn (tp + fp) and what fraction of this is correctly classified (tp) as churning.
     - `Recall`: Looking at all the customers, that are actually churning (tp + fn) and what fraction of this is correctly classified (tp) as churning.
@@ -237,8 +237,8 @@ We have the following results from the given data:
 
 - Process that is used for parameter tuning (finding the best parameters)
 - Popular variant of Cross-Validation is K-Fold Cross-Validation, where the Trainig- and Validation-data is handled as 1 dataset (`Train-Full`) and split into `K` subsets of the same size. 
-    - **Big Datasets**: use few folds (for example $K = 2$ or $ K = 3$)
-    - **Small Datasets**: use many folds (for example $K = 10total=n_splits$ or more)
+    - **Big Datasets**: use few folds (for example $K = 2$ or $K = 3$)
+    - **Small Datasets**: use many folds (for example $K = 10$ or more)
 - One of the `K` subsets is chosen as validation set after the model was trained on all other subsets.
 - The Training- and Validation-data changes at each iteration
 - The Test-data is not used for this process and is used for evaluating the obtained parameters.
@@ -253,7 +253,7 @@ Example (K=3)          Train                      Val
                 [   1    |   3    ] => g(x) => [   2   ]  AUC(2)
                 [   2    |   3    ] => g(x) => [   1   ]  AUC(1)
 ```
-- After `K` Training and Evaluation iterations the resulting AUC's get averaged: $\mu_{\text{AUC}} = \frac{1}{N}\sum_{i=1}^N \text{AUC}_i$
+- After `K` Training and Evaluation iterations the resulting AUC's get averaged: $\mu_{\text{AUC}} = \frac{1}{N} \sum_{i=1}^{N} \text{AUC}_i$
 - Training on the full training-dataset should not result in AUC'S that are that different than the AUC of the folds
 
 
