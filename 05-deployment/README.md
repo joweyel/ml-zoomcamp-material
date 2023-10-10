@@ -253,7 +253,7 @@ python3 predict-test.py
 ### There is still a problem
 - The environments are still not fully separated
 - Packages can rely on libraries of the operating system
-- One additional layer of separation is required for this
+- One additional layer of separation is required for this -> **Docker**
 
 
 <a id="06-docker"></a>
