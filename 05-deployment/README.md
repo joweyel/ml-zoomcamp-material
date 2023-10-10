@@ -30,12 +30,31 @@
 - Encapsulating all system dependencies inside a `Docker`-container
 - Running the `Docker`-container inside AWS Elastic Beanstalk
 
+
 <a id="02-pickle"></a>
 ## 5.2 Saving and loading the model
 
 - Saving the model to `pickle`
 - Loading the model from `pickle`
 - Turning our notebook into a Python script
+
+```python
+import pickle
+filanem = "model.bin"
+
+# Saving
+with open(filename, "wb") as f_out:
+    pickle.dump((dv, model), f_out)
+
+# Loading
+with open(filename, "rb") as f_in.
+    dv, model = pickle.load(f_in)
+```
+
+To export the Notebook as `Python`-file you can call the following command
+```bash
+jupyter nbconvert --to python notebook.ipynb
+```
 
 
 <a id="03-flask-intro"></a>
@@ -44,6 +63,36 @@
 - Writing a simple ping/pong app
 - Querying it with `curl` and browser
 
+### What is a Web-Service?
+- Program that is availbable over the Web
+- A user sends a request / query from the local machine and gets a result from the web-service according to the query
+
+### Creating a simple web-service
+- Sending a `/ping`-request to the Flask Web-Service
+- Receiving `pong`-result from the Flask Web-Service
+- The Code can be found in the file [ping.py](./code/ping.py)
+
+```python
+from flask import Flask
+
+app = Flask("ping")
+
+@app.route("/ping", methods=["GET"])
+def ping():
+    return "PONG"
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=9696) 
+```
+
+You can access the flask-app by using the browser
+```bash
+0.0.0.0:9696/ping
+```
+or by using the `curl` command
+```bash
+curl 0.0.0.0:9696/ping
+``` 
 
 <a id="04-flask-deployment"></a>
 ## 5.4 Serving the churn model with Flask
