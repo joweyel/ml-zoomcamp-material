@@ -163,6 +163,99 @@ gunicorn --bind=0.0.0.0:9696 predict:app
 - Installing libraries with `Pipenv`
 - Running things with `Pipenv`
 
+### Why Python Environments are important
+- Isolated Python dependencies for specific tasks
+- Dependency-file can be created to make python environment reproducible on other devices 
+
+### Installing Python packages with `pip`
+`pip` is a python package managment system, that gets it's packages from [pypi.org](https://pypi.org/) (a python package repository)
+
+```bash
+# Example install of a package (the latest version)
+pip install scikit-learn
+
+# Install of a package with a specific version
+pip index versions scikit-learn   # listing available versions
+pip install scikit-learn==0.22.1  # a specifc version
+```
+`pip` determines the installation-path based on the `PATH`-variable. Some examples are here:
+- **ml-zoomcamp**: `/home/user/miniconda3/envs/ml-zoomcamp/bin/pip` $\quad\rightarrow\quad$ inside conda environments that conda-sepecific pip-binary will be found first
+- **Global packages**: `/usr/bin/pip`
+
+You can find out which `pip` / `python` version is used by using the `which`-command
+```bash
+# Example for ml-zoomcamp
+which python  # /home/user/miniconda3/envs/ml-zoomcamp/bin/python
+which pip     # /home/user/miniconda3/envs/ml-zoomcamp/bin/pip
+```
+
+### Scenarios of conflicting package versions
+- **Situation:** 2 Applciations
+    - **Churn-Service** $\quad\rightarrow\quad$ `scikit-learn==0.24.2`
+    - **Lead-Scoring-Service** $\quad\rightarrow\quad$ `scikit-learn==1.3.1` (latest)
+
+    - Both applications must be separate, because in the example situation the programs depend on a specific package-version
+- **Solution:** creating 2 separate virtual python-environments to avoid version- and dependency-confĺicts
+
+### Different possible tools for virtual environments
+
+- virtualenv:
+```bash
+# Install `virtualenv`
+pip install virtualenv
+
+# Create environment
+virtualenv -p python3 virtualenv-name
+
+# Activate environment
+source virtualenv-name/bin/activate
+```
+
+- venv:
+```bash
+# No Installation of `venv` required
+# Create environment 
+python3 -m venv venv-name
+
+# Activate environment
+source venv-name/bin/activate
+```
+
+- pipenv (used in this course):
+```bash
+# Install `pipenv`
+pip install pipenv
+
+# Creating environment with specified packages (no explicit env.-creation needed)
+pipenv install package1 package2 package3
+
+# Installing new packages (must be in same directory as `Pipfile`)
+pipenv install package4
+
+# Activate environment (in Pipfile-directory)
+pipenv shell
+```
+
+### `pipenv` for fhis section + execution of churn-model web-service
+```python
+# Create pipenv
+pipenv install numpy pandas scikit-learn flask gunicorn
+# Acticate pipenv-environment
+pipenv shell
+
+# Start the web-app with `gunicorn`
+gunicorn --bind 0.0.0.0:9696 predict:app
+
+# In another tab call the following to contact the web-app, running in the pipenv
+python3 predict-test.py
+```
+
+### There is still a problem
+- The environments are still not fully separated
+- Packages can rely on libraries of the operating system
+- One additional layer of separation is required for this
+
+
 <a id="06-docker"></a>
 ## 5.6 Environment management: Docker
 
