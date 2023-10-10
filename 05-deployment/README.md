@@ -73,6 +73,7 @@ jupyter nbconvert --to python notebook.ipynb
 - The Code can be found in the file [ping.py](./code/ping.py)
 
 ```python
+# A simple example for a flask web-service
 from flask import Flask
 
 app = Flask("ping")
@@ -93,6 +94,8 @@ or by using the `curl` command
 ```bash
 curl 0.0.0.0:9696/ping
 ``` 
+You can choose which `IP`, `Port` and `route` the web-app uses, with the parameters in `app.run(...)`
+
 
 <a id="04-flask-deployment"></a>
 ## 5.4 Serving the churn model with Flask
@@ -100,6 +103,57 @@ curl 0.0.0.0:9696/ping
 - Wrapping the predict script into a `Flask` app
 - Querying it with production: `gunicorn`
 - Running it on Windows with `waitress`
+
+![webapp](./imgs/marketing_churn.png)
+- In comparison to the simple `Ping-Pong` flask-app, a more "interactive" flask-app requires `POST` as method of interation. This is because the `GET`-method is only good for obtaining data but not for "posting" data the web-service
+    - Directly using the addess `IP:Port/route` is not allowed, since it requires something to be posted. The only way to get outputs from the web-app is to request a result, given an adequate input query.
+- Received and sent is in the JSON-format. The web-app recieves the data and parses it, uses it and responds with the results in json format. This can be seen in the following example from the [predict.py](code/predict.py) script.
+```python
+@app.route("/predict", methods=["POST"])
+def predict():
+    customer = request.get_json()
+    X = dv.transform([customer])
+    y_pred = model.predict_proba(X)[0, 1]
+    churn = y_pred >= 0.5
+
+    result = {
+        "churn_probability": y_pred,
+        "churn": churn
+    }
+    return jsonify(result)
+```
+
+- How to query the web-app with a `POST`-request (from notebook: [05-predict-test.ipynb](./code/05-predict-test.ipynb))
+```python
+import requests
+
+url = "http://localhost:9696/predict"
+customer = { ... }
+# received the result-json from `predict()`
+response = requests.post(url, json=customer).json()
+
+# "The Decision"
+if response["churn"] == True:
+    print(f"Sending promo-Email to {'xyz-123'}")
+```
+
+- **What is this Warning?!**
+    - `WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.`
+- **The Answer!**
+    - The direct usage of Flask is intended for application development, but not for deployment in production itself
+    - However other production-ready web-services can be used with Flask (e.g. `Gunicorn`, `waitress` (on Windows))
+    - Next step is to install `gunicorn` in your Python environment
+    ```bash
+    pip install gunicorn
+    ```
+
+To deploy the flask-based web-app with `Gunicorn` you need to call the following command
+- `--bind=ip:port`: specification of ip and port number under which the web-app is being deployed
+- `predict`: name of python file with web-app
+- `app`: flask-variable inside the python file (here: `app = Flask("churn")`)
+```bash
+gunicorn --bind=0.0.0.0:9696 predict:app
+```
 
 <a id="05-pipenv"></a>
 ## 5.5 Python virtual environment: Pipenv

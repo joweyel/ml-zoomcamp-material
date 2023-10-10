@@ -19,7 +19,6 @@ n_splits = 5    # Number of splits in K-Fold Cross-validation
 output_file = f"model_C={C}.bin"
 
 
-
 # Data Preparation
 df = pd.read_csv("data-week-3.csv")
 
