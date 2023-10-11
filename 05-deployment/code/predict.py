@@ -20,7 +20,6 @@ def predict():
         "churn_probability": y_pred,
         "churn": bool(churn) # np.bool -> bool
     }
-    print(type(churn))
     return jsonify(result)
 
 if __name__ == "__main__":

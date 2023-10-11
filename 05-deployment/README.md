@@ -197,6 +197,8 @@ which pip     # /home/user/miniconda3/envs/ml-zoomcamp/bin/pip
     - Both applications must be separate, because in the example situation the programs depend on a specific package-version
 - **Solution:** creating 2 separate virtual python-environments to avoid version- and dependency-confĺicts
 
+![vens](./imgs/pipenv.png)
+
 ### Different possible tools for virtual environments
 
 - virtualenv:
@@ -264,6 +266,104 @@ python3 predict-test.py
 - `Dockerfile`
 - Building a `Docker` image
 - Running a `Docker` image
+
+### Isolating among services using Docker
+- **Problem before**: Environemnt is not "fully" portable, since python virtual environments depend on the packages of the host operating system
+- **Solution**: Using Software that completely isolates the required dependencies and is easily reprodicible
+
+Docker allows to package everything needed in an isolated Docker-`container`. A container has it's own operating system (the basic packages). Dependencies to packages outside are usually non-existant 
+
+![docker](./imgs/docker.png)
+
+
+### Running Python image with Docker
+- **Docker-Image**: 
+    - Package that contains everything needed (OS, packages, python-packages) to run a scpecific program or software
+    - Usually configured/created using a `Dockerfile` with installation-instructions
+    - To find available docker images you can have a look at [Docker-Hub](https://hub.docker.com)
+- **Docker-Container**:
+    - A running instance of a docker-image
+
+**Example usage of docker-image:**
+```bash
+# Will be downloaded if not already created
+docker run -it --rm python:3.8.11-slim
+```
+- Parameters:
+    - `-it`: Interactive termainal
+    - `--rm`: Deleting everything after using the docker container
+
+The command above will launch directly in the python-console, however it is possible to change the `entrypoint` of the docker-container and chose another program like `bash`, to launch into the `bash`-commandline.
+
+```bash
+# Launch into bash instead of python
+docker run -it --rm --entrypoint=bash python:3.8.11-slim
+
+# Installing pacakges manually inside the docker-container
+apt-get update 
+apt-get upgrade
+apt-get install wget
+
+# pip is already installed in python-images
+pip install pipenv
+```
+
+Initializing the Docker-contrainer and installing of packages is usually not done by hand, but with the help of a so-called `Dockerfile`. An example for a `Dockerfile` can be found here:
+```Dockerfile
+FROM python:3.8.12-slim
+
+RUN pip install pipenv
+
+# Create directory if not existing yet + `cd` to the folder
+WORKDIR /app  
+# Copy relevant files to the docker-image
+COPY ["Pipfile", "Pipfile.lock", "./"]
+
+# installing dependencys in the system (isolated by docker)
+RUN pipenv install --system --deploy
+
+# Copying all files needed for predictions on the churn-model
+COPY ["predict.py", "model_C=1.0.bin", "./"]
+
+# Allowing access to the docker-container over the exposed port
+EXPOSE 9696
+
+# Runs the flask-app as gunicorn web-service when started
+ENTRYPOINT ["gunicorn", "--bind=0.0.0.0:9696", "predict:app"]
+
+```
+The docker image can then be created with the following command:
+```bash
+# `.` uses the Dockerfile from the current directory 
+docker build -t zoomcamp-test .
+```
+
+After creation of the `zoomcamp-text` image you can use the image to run a docker-container with all the software encapsulated and islolated in it.
+
+Running the docker-container:
+```bash
+docker run -it --rm zoomcamp-test 
+```
+
+Connecting to the docker-container:
+```bash
+python3 predict-test.py
+```
+
+There is still a problem! The following error is shown when the `predict-test.py` file is called:
+```bash
+requests.exceptions.ConnectionError: HTTPConnectionPool(host='localhost', port=9696): Max retries exceeded with url: /predict (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7fd342c82370>: Failed to establish a new connection: [Errno 111] Connection refused'))
+```
+The problem here is that the port of the docker-container is not mapped to the port of the host machine. Without this connection, there is nothing to be found at port `9696`. The required connection to be establised is the one from the edge of the Ubuntu 18.04 container to the edge of the host-device.
+
+![Ports](./imgs/Ports.png)
+
+To connect the docker-container with the same port of the host you have to use the following command when running the docker-container:
+```bash
+docker run -it --rm -p 9696:9696 zoomcamp-test
+```
+
+Running `predict-test.py` again will now work!
 
 <a id="07-aws-eb"></a>
 ## 5.7 Deployment to the cloud: AWS Elastic Beanstalk (optional)
