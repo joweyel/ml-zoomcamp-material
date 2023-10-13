@@ -22,6 +22,10 @@ Let's use these models!
 {"job": "retired", "duration": 445, "poutcome": "success"}
 ```
 
+**Execution of Code:**
+```
+python3 predict-test.py ./customers/customer3.json
+```
 
 **Result from Code:** `0.901931`
 
@@ -45,11 +49,19 @@ requests.post(url, json=client).json()
 
 What's the probability that this client will get a credit?
 
+**Execution of Code:**
+```bash
+# In a console
+python3 predict.py
+
+# In another console
+python3 predict-test.py ./customers/customer4.json
+```
 **Result from Code:** `0.13968947052356817`
 
 **Solution:**  `0.140`
 
-- Solution Code: [q4_predict-test.py](q4_predict-test.py), [q4_predict.py](q4_predict.py) 
+- Solution Code: [predict-test.py](predict-test.py), [predict.py](predict.py) 
 
 ## Docker
 Obtaining the Docker-Image with:
@@ -67,7 +79,6 @@ svizor/zoomcamp-model   3.10.12-slim   08266c8f0c4b   2 days ago     147MB
 ```
 **Solution:** `147MB`
 
-
 ## Dockerfile
 
 ```Dockerfile
@@ -80,7 +91,10 @@ COPY ["Pipfile", "Pipfile.lock", "./"]
 
 RUN pipenv install --system --deploy
 
-COPY ["q4_predict.py", "./"]
+# Copy the binary files
+COPY ["model1.bin", "dv.bin", "./"]
+
+COPY ["predict.py", "./"]
 
 EXPOSE 9696
 
@@ -106,3 +120,19 @@ requests.post(url, json=client).json()
 
 What's the probability that this client will get a credit now?
 
+Running the created docker-container
+```bash
+docker run -it --rm -p 9696:9696 hw5-q6-container
+```
+Calling the web-app inside the docker container
+```bash
+python3 predict-test.py ./customers/customer6.json
+```
+
+- Solution Code: [q6_predict-test.py](predict-test.py), [q4_predict.py](q4_predict.py), [Dockerfile](Dockerfile)
+
+**Result from code:**
+```python
+{ "card_decision": True, "credit_probability": 0.9019309332297606 }
+```
+**Solution:** `0.968`

@@ -7,7 +7,10 @@ COPY ["Pipfile", "Pipfile.lock", "./"]
 
 RUN pipenv install --system --deploy
 
-COPY ["q4_predict.py", "./"]
+# Copy the binary files
+COPY ["model1.bin", "dv.bin", "./"]
+
+COPY ["predict.py", "./"]
 
 EXPOSE 9696
 
