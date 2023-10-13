@@ -372,6 +372,15 @@ Running `predict-test.py` again will now work!
 - Running `eb` locally
 - Deploying the model
 
+### Create an AWS Account
+- Follow this [link](https://mlbookcamp.com/article/aws) for instructions how to create a new AWS account (if you don't already have one).
+
+### Deploying web service using Elastic Beanstalk (EB)
+
+![EB](imgs/EB.png)
+- EB will automatically scale number of required instances (of the service) up or down, depending on the currently demanded workload
+
+
 <a id="08-summary"></a>
 ## 5.8 Summary
 
