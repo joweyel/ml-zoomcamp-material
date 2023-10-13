@@ -380,6 +380,59 @@ Running `predict-test.py` again will now work!
 ![EB](imgs/EB.png)
 - EB will automatically scale number of required instances (of the service) up or down, depending on the currently demanded workload
 
+Installing and using AWS Elastic Beanstalk inside a pipenv environment
+```bash
+# Installin EB as Development dependency -> not used when deployed
+pipenv install awsebcli --dev
+# Entering the virtual environment
+pipenv shell
+```
+
+Now the EB-Service has to be initialized inside the virtual environment. For this the following command can be used
+```bash
+eb init -p docker -r us-east-1 churn-serving
+```
+Parts of the command mean:
+- `eb init`: Initializes your directory with the EB CLI. Creates the application.
+- `-p docker`: Which platform is used to run and deploy the application
+- `-r us-east-1`: Region in which the service is located
+
+If not already set, you have to provide the `Access key` and `Secret access key` that you generated for your AWS account.
+The next step now is to test the service locally to see if it is working properly:
+```bash
+eb local run --port 9696
+```
+You should be able to query the model inside the local EB service with
+```bash
+python3 predict-test.py
+```
+
+### Testing web service hosted on the cloud
+
+Now let's put everything to in the cloud. To create a production-ready environment on AWS you have to call the following command:
+```bash
+eb create churn-serving-env
+```
+This will create and initialize a bunch of services, that are required for the Web-App. Now you have to use the web-address, that was shown at the end of the creation-process of the EB-Service, inside the script that is used to query the churn-model. The changes are as follows:
+
+```python
+
+# Before
+url = "http://localhost:9696/predict"
+
+# After
+host =  "churn-serving-env.eba-phudkfj2.us-east-1.elasticbeanstalk.com"
+url = f"http://{host}/predict"  # Uses port 80. No need to map to port 9696
+```
+
+<u>*Important*</u>: The created service is open to everyone who has access to the url. Be sure to turn off the service or restrict access to the service to avoid unwanted access!
+
+
+### Terminate EB service
+To terminate the EB-Service you have to call the following command (or by using the Web UI of AWS):
+```bash
+eb terminate churn-serving-env
+```
 
 <a id="08-summary"></a>
 ## 5.8 Summary
@@ -400,3 +453,6 @@ Running `predict-test.py` again will now work!
 
 <a id="homework"></a>
 ## 5.10 Homework
+- Questions can be found [here](homework/homework.md)
+- Solutions can be found [here](homework/solution.md)
+    - The code used for the solutions are in the folder [homework/](./homework/)
