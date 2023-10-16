@@ -129,7 +129,7 @@ Calling the web-app inside the docker container
 python3 predict-test.py ./customers/customer6.json
 ```
 
-- Solution Code: [q6_predict-test.py](predict-test.py), [q4_predict.py](q4_predict.py), [Dockerfile](Dockerfile)
+- Solution Code: [predict-test.py](predict-test.py), [predict.py](predict.py), [Dockerfile](Dockerfile)
 
 **Result from code:**
 ```python
