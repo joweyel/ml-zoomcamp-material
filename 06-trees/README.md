@@ -79,11 +79,14 @@ roc_auc_score(y_val, y_pred)
 ### Overfitting in Dections Trees
 Decision Trees tend to overfit when the data is complex. Decision trees can grow arbitrarilty deep by default and can therefore perfectly fit every datapoint of the training-data perfectly. This will result in perfect AUC-score on the training-data but bad results on every other unseen datapoint. The remedy to this is to limit the depth of the decision tree, s.t. the learning algorithm learns more general condition-statements to generalize better to unseen data.
 
-
-
 <a id="04-decision-tree-learning"></a>
 ## 6.4 Decision tree learning algorithm
 
+### Decision tree learning - How does a DT learn it's rules
+
+![stumb](./imgs/dt_condition.png)
+- Each decision node learns a partition of data along a certain feature
+- A hyperparameter that hast to be found is the threshold-value of every node in the decision tree. The threshold determines the best split of data along a feature
 
 <a id="05-decision-tree-tuning"></a>
 ## 6.5 Decision trees parameter tuning
