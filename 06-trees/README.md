@@ -88,6 +88,8 @@ Decision Trees tend to overfit when the data is complex. Decision trees can grow
 - Each decision node learns a partition of data along a certain feature
 - A hyperparameter that hast to be found is the threshold-value of every node in the decision tree. The threshold determines the best split of data along a feature
 
+**TODO**
+
 <a id="05-decision-tree-tuning"></a>
 ## 6.5 Decision trees parameter tuning
 
