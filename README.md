@@ -25,3 +25,5 @@ Machine Learning Engineering repository with my work during the ML Zoomcamp by [
 ## 4. [Evaluation Metrics for Classification](04-evaluation)
 
 ## 5. [Deploying Machine Learning Models](05-deployment)
+
+## 6. [Decision Trees and Ensemble Learning](06-trees)
