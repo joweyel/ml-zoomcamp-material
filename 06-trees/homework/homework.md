@@ -141,7 +141,7 @@ Now let's train an XGBoost model! For this question, we'll tune the `eta` parame
 * Create a watchlist
 * Train a model with these parameters for 100 rounds:
 
-```
+```python
 xgb_params = {
     'eta': 0.3, 
     'max_depth': 6,
