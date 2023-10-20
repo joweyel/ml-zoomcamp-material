@@ -33,7 +33,7 @@ The mathematical model, that the bank uses can be a machine learning model, that
 
 ### The model
 - **Problem-Type**: Classification
-- **Model**: $g(X_i) \rightarrow $ probability of default
+- **Model**: $g(X_i) \rightarrow$ probability of default
 - **Features**: customer informartion $X_i$
 - **Labels**:  $y_i = \{0,1\}$, with $0$ = `OK`, $1$ = `Default`
 
