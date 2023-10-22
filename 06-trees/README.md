@@ -88,35 +88,57 @@ Decision Trees tend to overfit when the data is complex. Decision trees can grow
 - Each decision node learns a partition of data along a certain feature
 - A hyperparameter that hast to be found is the threshold-value of every node in the decision tree. The threshold determines the best split of data along a feature
 
-**TODO**
+The rest of this subsection can be found int this weeks [notebook](code/section6-notebook.ipynb).
 
 <a id="05-decision-tree-tuning"></a>
 ## 6.5 Decision trees parameter tuning
 
+See section 6.5 of this weeks [notebook](code/section6-notebook.ipynb).
 
 <a id="06-random-forest"></a>
 ## 6.6 Ensemble learning and random forest
+
+See section 6.6 of this weeks [notebook](code/section6-notebook.ipynb).
 
 
 <a id="07-boosting"></a>
 ## 6.7 Gradient boosting and XGBoost
 
+See section 6.7 of this weeks [notebook](code/section6-notebook.ipynb).
+
 
 <a id="08-xgb-tuning"></a>
 ## 6.8 XGBoost parameter tuning
+
+See section 6.8 of this weeks [notebook](code/section6-notebook.ipynb).
 
 
 <a id="09-final-model"></a>
 ## 6.9 Selecting the best model
 
+See section 6.9 of this weeks [notebook](code/section6-notebook.ipynb).
+
 
 <a id="10-summary"></a>
 ## 6.10 Summary
 
+- Decision tree learn if-then-else rule from data
+- Finding the best split: select the least impure split. The algorithm can overfit, that's why we control it by limiting the max depth and the size of the group.
+- Random forest is a way of combining multiple decision trees. It should habe a diverse set of models to make good predictions
+- Gradient boosting trains model sequentially: each model tries to fix errors of the previous model. XGBoost is an implementation of gradient boosting
 
 <a id="11-explore-more"></a>
 ## 6.11 Explore more
 
+- For this dataset we didn't do EDA or feature engineering. You can do it to get more insights into the problem.
+- For random forest, there are more parameters that we can tune. Check max_features and bootstrap.
+- There's a variation of random forest caled "extremely randomized trees", or "extra trees". Instead of selecting the best split among all possible thresholds, it selects a few thresholds randomly and picks the best one among them. Because of that extra trees never overfit. In Scikit-Learn, they are implemented in ExtraTreesClassifier. Try it for this project.
+- XGBoost can deal with NAs - we don't have to do fillna for it. Check if not filling NA's help improve performance.
+- Experiment with other XGBoost parameters: subsample and colsample_bytree.
+- When selecting the best split, decision trees find the most useful features. This information can be used for understanding which features are more important than otheres. See example here for random forest (it's the same for plain decision trees) and for xgboost
+- Trees can also be used for solving the regression problems: check DecisionTreeRegressor, RandomForestRegressor and the objective=reg:squarederror parameter for XGBoost.
 
 <a id="homework"></a>
 ## 6.12 Homework
+- Questions can be found [here](homework/homework.md#)
+- Solutions can be found [here](homework/solution.ipynb)
