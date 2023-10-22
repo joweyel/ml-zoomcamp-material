@@ -93,14 +93,11 @@ COPY ["Pipfile", "Pipfile.lock", "./"]
 
 RUN pipenv install --system --deploy
 
-# Copy the binary files
-COPY ["model1.bin", "dv.bin", "./"]
-
 COPY ["predict.py", "./"]
 
 EXPOSE 9696
 
-ENTRYPOINT ["gunicorn", "--bind=0.0.0.0:9696", "predict:app"]
+ENTRYPOINT ["gunicorn", "--bind=0.0.0.0:9696", "q6_predict:app"]
 ```
 
 Building the image in the homework-folder
@@ -124,17 +121,17 @@ What's the probability that this client will get a credit now?
 
 Running the created docker-container
 ```bash
-docker run -it --rm -p 9696:9696 hw5-q6-container
+    docker run -it --rm -p 9696:9696 hw5-q6-container
 ```
 Calling the web-app inside the docker container
 ```bash
 python3 predict-test.py ./customers/customer6.json
 ```
 
-- Solution Code: [predict-test.py](predict-test.py), [predict.py](predict.py), [Dockerfile](Dockerfile)
+- Solution Code: [predict-test.py](predict-test.py), [q6_predict.py](q6_predict.py), [Dockerfile](Dockerfile)
 
 **Result from code:**
 ```python
-{ "card_decision": True, "credit_probability": 0.9019309332297606 }
+{'card_decision': True, 'credit_probability': 0.726936946355423}
 ```
-**Solution:** `0.968`
+**Solution:** `0.730`

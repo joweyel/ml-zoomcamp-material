@@ -27,3 +27,5 @@ Machine Learning Engineering repository with my work during the ML Zoomcamp by [
 ## 5. [Deploying Machine Learning Models](05-deployment)
 
 ## 6. [Decision Trees and Ensemble Learning](06-trees)
+
+## 7. [Midterm Project](07-midterm-project)
