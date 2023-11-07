@@ -29,3 +29,5 @@ Machine Learning Engineering repository with my work during the ML Zoomcamp by [
 ## 6. [Decision Trees and Ensemble Learning](06-trees)
 
 ## 7. [Midterm Project](07-midterm-project)
+
+## 8. [Neural Networks and Deep Learning](08-neural-networks-and-deep-learning)
