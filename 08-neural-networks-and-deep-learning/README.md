@@ -182,6 +182,34 @@ The rest of this sub-section is pretty code-heavy so please refer to `8.5 Transf
 <a id="#06-learning-rate"></a>
 ## 8.6 Adjusting the learning rate
 
+### What's the learning rate
+
+As seen in the reults of the last section (see this sections notebook [here](./code/section8-notebook.ipynb)), the validation accuracy will jump around $0.8$. This is caused by a `learning rate` that is too high. An obvious solution to this is to try different learning rates, which is the topic of this section.
+
+The learning rate hyperparameter indicates how big the steps in the training-process of an machine learning algorithm are. Learning rates can be generally subdivided in 3 categrories, of which each has it's pro's and con's:
+- **High**: Fast learning process, but the danger of overshooting the location of optimal model-parameters
+    - `Example`: 1.0
+    - Poor Validation Accuracy + Overfitting 
+- **Small**: Does not overshoot local/global optima of model-parameters, but is very slow
+    - `Example`: 0.001
+    - Poor Validation Accuracy + Underfitting
+- **Medium**: Generally a good tradeoff between 
+    - `Example`: 0.1
+
+*Inportant*: Finding the right learning rate is a part of hyperparameter-tuning of Neural Networks.
+
+Further parts of this section can be found in Section 8.6 of this weeks notebook [here](./code/section8-notebook.ipynb)
+
+### Trying different values
+After evaluating the learned model in the notebook we obtain the following graph for the validation-accuracy:
+![val_acc](./imgs/learning_rates.png)
+
+From the graph one can see, that the learning rate of $\alpha=0.001$ works best when here. The validation-accuracy is above the ones of all other tried learning rates.
+
+You can see, that the difference is smaller when comparing training and validation accuracy, which indicates a stronger generalization ability of the model.
+![acc](./imgs/train_val.png)
+
+
 
 <a id="#07-checkpointing"></a>
 ## 8.7 Checkpointing
