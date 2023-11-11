@@ -214,10 +214,64 @@ You can see, that the difference is smaller when comparing training and validati
 <a id="#07-checkpointing"></a>
 ## 8.7 Checkpointing
 
+- The process of saving model parameters during training
+- Tensorflow/Keras provides functionality for this with `callbacks`
+
+### Example of use
+```python
+#### Manual Version ####
+
+# Saving a model with a simple function-call manually
+model.save_weights("model_v1.h5", save_format="h5")
+
+
+#### Callback Version ####
+
+# Checkpoint-Saving callback that can be given as parameter in `keras.fit()`
+# -> Saving conditions can be configured as seen in the callback below
+ckpt_callback = keras.callbacks.ModelCheckpoint(
+    "model_v1_{epoch:02d}_{val_accuracy:.3f}.h5".format(epoch, val_accuracy),
+    save_best_only=True,    # only saves when model / monitored metric improves
+    monitor="val_accuracy", # metric to monitor
+    mode="max"              # what should be done with metric
+)
+
+# How to use the callback 
+history = model.fit(
+    train_ds, 
+    epochs=10, 
+    validation_data=val_ds,
+    callbacks=[checkpoint]
+)
+```
+
+For working code using those functions please look into Section 8.7 in this weeks notebook [here](./code/section8-notebook.ipynb)
 
 <a id="#08-more-layers"></a>
 ## 8.8 Adding more layers
 
+- One layer only has a limited capability to learn complex feaures and is therefore limited in its capability.
+
+![inner](imgs/inner_layer_1.jpg)
+
+- The new version of the neural network now looks like this:
+
+![inner2](imgs/inner_layer_2.jpg)
+
+**`Activation Functions`**:
+
+Usually applied after each layer, in order to achieve better performance. This is caused by the transformation from linear function to non-linear function. With this the Neural Network has greater approximation power to complex problems.
+
+
+**Output-Activations**
+- `Sigmoid`: Binary $\quad\sigma(z) = \frac{1}{1 + e^{-z}}$
+- `Softmax`: Multiclass $\quad\text{softmax}(z)_i = \frac{e^{z_i}}{\sum_j e^{z_j}}$
+
+**Intermediate-Activations**
+- `ReLU`: Linear in positive real numbers, otherwise 0
+- `...`: many other
+
+For applying extra layers with activation functions, please go to Section 8 of this weeks notebook [here](code/section8-notebook.ipynb)
 
 <a id="#09-dropout"></a>
 ## 8.9 Regularization and dropout
