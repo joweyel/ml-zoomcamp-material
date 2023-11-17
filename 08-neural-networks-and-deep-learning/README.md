@@ -250,7 +250,7 @@ For working code using those functions please look into Section 8.7 in this week
 <a id="#08-more-layers"></a>
 ## 8.8 Adding more layers
 
-- One layer only has a limited capability to learn complex feaures and is therefore limited in its capability.
+- One layer only has a limited capability to learn complex feaures and is therefore limited in its ability to capture complex relations in the data.
 
 ![inner](imgs/inner_layer_1.jpg)
 
@@ -276,10 +276,63 @@ For applying extra layers with activation functions, please go to Section 8 of t
 <a id="#09-dropout"></a>
 ## 8.9 Regularization and dropout
 
+- Dropout is a an important Regularization-technique for the training-procedure of fully connected Neural Networks (with Dense layers)
+- While training, dropout is implemented by only keeping a neuron active with some probability $p$ (a hyperparameter), or setting it to zero otherwise. Intuitively, this forces the network to be accurate even in the absence of certain information. It prevents the network from becoming too dependent on any one (or any small combination) of neurons and focus more on the "bigger picture".
+
+![dropout](imgs/dropout.jpg)
+
+*Source:* [Dropout-Paper](https://jmlr.org/papers/volume15/srivastava14a/srivastava14a.pdf) by Nitish et al.
+
+
+
 
 <a id="#10-augmentation"></a>
 ## 8.10 Data augmentation
 
+- Data augmentation is a technique used in deep learning to improve the quality of data used for training artificial neural networks. It involves artificially increasing the size of the training dataset by adding variations to existing data samples.
+
+- The goal of data augmentation is to increase the diversity of the training data, which can help prevent overfitting and improve the accuracy of the model. Data augmentation can be used when the initial training set is too small or when the model accuracy needs to be improved. It can also help reduce the operational cost of labeling and cleaning the raw dataset.
+
+There are different types of augmentations for image data like ...
+
+1. **`Image rotation`**: Rotating the image at different angles to increase the size of the training data.
+2. **`Image shifting`**: Shifting the images to change the position of the objects in the image and hence give more variety to the model.
+3. **`Image flipping`**: Flipping the image horizontally or vertically to create a mirror image of the original image.
+4. **`Image cropping`**: Cropping the image to focus on a specific part of the image.
+5. **`Image scaling`**: Scaling the image to a different size to create a new image.
+6. **`Image shearing`**: Shearing the image to create a new image.
+7. **`Image zooming`**: Zooming in or out of the image to create a new image.
+8. **`Image brightness adjustment`**: Adjusting the brightness of the image to create a new image.
+9. **`Image contrast adjustment`**: Adjusting the contrast of the image to create a new image.
+10. **`Image blurring`**: Blurring the image to create a new image.
+11. **`Black patch`**: Blacking out a part of the image
+
+Example for some of them can be found in this sections [notebook](code/section8-notebook.ipynb) in Section 8.10.
+
+Multiple transformations can also be combined with `ImageDataGenerator` from `tensorflow.keras.preprocessing.image`.
+
+### Choosing Augmentations
+Which augmentations should be used during training? It depends on the problem. Data augmentation is employed to increase data-diversity and it is advisable to choose augmentation techniques that are implausible in the real world. In the use-case of clothing type classification, the horizontal flip is not a very useful augmentation technique.
+
+Some guidelines for choosing augmentation-types are:
+- Use your own judgement (what are plausible augmentations and what are implausible)
+- Look at the dataset $\rightarrow$ What kind of variations are there?
+    - Are images always centered? `Horizontal and/or vertical shifting` can be employed!
+    - Real world image-data could also be not perfectly aligned with the horizontal or vertical axis, defined by the image borders. `Shearing` and `Rotation` could be applied here.
+    - Many other possibilities ...
+
+**Data Augmentation is a tunable Hyperparameter**
+1. Train model for 10-20 epochs (probing the efficacy of the applied augmentations)
+2. Is it better?
+    - `Yes`: Use!
+    - `No`: Don't use!
+    - `Same`: Train for another 10-20 epochs (`Step 1.`)
+3. Is it still not better? 
+    - `Yes`: Use!
+    - `No`: Don't use!
+
+**Training with data augmentation is usually slower! Why is that?**
+![slowdown](imgs/augmentation-slowdown.jpg)
 
 <a id="#11-large-model"></a>
 ## 8.11 Training a larger model
