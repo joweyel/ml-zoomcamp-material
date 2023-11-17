@@ -336,19 +336,84 @@ Some guidelines for choosing augmentation-types are:
 
 <a id="#11-large-model"></a>
 ## 8.11 Training a larger model
+Everything until now was done with a model that takes inputs of size `(150, 150)` which is 4x faster to train than a model with input-size `(299, 299)`. However this is over now! This subsection is mostly code based and can therefore be found in this sections notebook [here](code/section8-notebook.ipynb).
 
 
 <a id="#12-using-model"></a>
 ## 8.12 Using the model
 
+Example Code for loading, evaluation and prediction:
+```python
+import numpy as np
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.preprocessing.image import load_img
+from tensorflow.keras.applications.xception import preprocess_input
+
+img_size = ... # size of image-input in model
+
+# Load the saved model
+model = keras.models.load_model("model_file.h5")
+
+# Load Test-dataset for evaluation
+test_gen = ImageDataGenerator(preprocessing_function=preprocess_input)
+test_ds = test_gen.flow_from_directory(
+    "path/to/dataset/",
+    target_size=(img_size, img_size),
+    batch_size=32,
+    shuffle=False
+)
+
+# Evaluate the model and showing the results
+eval_results = model.evaluate(test_ds)
+print(f"loss: {eval_results[0]:.4f} | test-accuracy: {eval_results[1]:.4f}")
+
+# Load single datapoint
+path = "path/to/image.jpg"
+img = load_img(path, target_size=(img_size, img_size))
+
+# Converting image to correct dimensions and type
+x = np.array(img)[None, ...] # PIL.Image -> np.ndarray (1, H, W, C)
+X = preprocess_input(x)
+
+pred = model.predict(X)
+
+# Get class-names that were used during training
+classes = list(train_ds.class_indices.keys())
+softmax_pred = np.exp(pred[0]) / np.sum(np.exp(pred[0]))
+
+print("Logit-scores:\n", dict(zip(classes, pred[0])))
+print("Class-Probability:\n ", dict(zip(classes, softmax_pred)))
+
+```
+
 
 <a id="#13-summary"></a>
 ## 8.13 Summary
+
+- We can use pre-trained models for general image classification
+- Convolutional layers let us turn an image into a vector
+- Dense layers use the vector to make the predictions
+- Instead of training a model from scrath, we can use transfer learning and re-use already trained convolutional layers
+- First, train a small model (150x150) before training a big one (299x299)
+- `Learning rate` - how fast the model trains. Fast learners aren't always best ones
+- We can save the best model using callbacks and checkpointing
+- To avoid overfitting, use dropout and augmentation
 
 
 <a id="#14-explore-more"></a>
 ## 8.14 Explore more
 
+- Add more data, e.g. Zalando etc.
+- Albumentations - another way of generating augmentations
+- In addition to `Xception`, there are other architectures - try them
+
+**Other projects:**
+
+- Cats vs. Dogs
+- Hotdog vs. not Hotdog
+- Category of images
 
 <a id="#homework"></a>
 ## 8.15 Homework
