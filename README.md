@@ -31,3 +31,5 @@ Machine Learning Engineering repository with my work during the ML Zoomcamp by [
 ## 7. [Midterm Project](07-midterm-project)
 
 ## 8. [Neural Networks and Deep Learning](08-neural-networks-and-deep-learning)
+
+## 9. [Serverless Deep Learning](09-serverless)

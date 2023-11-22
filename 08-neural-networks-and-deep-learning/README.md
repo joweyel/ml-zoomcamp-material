@@ -19,7 +19,7 @@
 - 8.15 [Homework](#homework)
 
 
-<a id="#01-fashion-classification"></a>
+<a id="01-fashion-classification"></a>
 ## 8.1 Fashion classification
 
 In previous sections we have used tabular data. Tabular data is as the name implies saved in tabular form and therefore easily readable for python-packages like pandas. Tables have already pre-defined features with filled in values for those features. The data used in this section can't be stored in this form, since images are used. Images don't have a unified feature-representation and therefore require a different form of machine learning algorithm than before. 
@@ -33,13 +33,13 @@ In previous sections we have used tabular data. Tabular data is as the name impl
 - This Sections Notebook: [Link](./code/section8-notebook.ipynb)
 - More in-depth introduction to Neural Networks: https://cs231n.github.io
 
-<a id="#01b-saturn-cloud"></a>
+<a id="01b-saturn-cloud"></a>
 ## 8.1b Setting up the Environment on Saturn Cloud
 
 To run this sections Jupyter Notebook on a GPU you can use Saturn cloud. Please follow [this](https://www.youtube.com/watch?v=WZCjsyV8hZE) Video-Tutorial to set up everything.
 
 
-<a id="#02-tensorflow-keras"></a>
+<a id="02-tensorflow-keras"></a>
 ## 8.2 TensorFlow and Keras
 
 In this section the python Deep Learning Frameworks `TensorFlow` and `Keras` are used.
@@ -57,7 +57,7 @@ import tensorflow as tf
 from tensorflow import keras
 ```
 
-<a id="#03-pretrained-models"></a>
+<a id="03-pretrained-models"></a>
 ## 8.3 Pre-trained convolutional neural networks
 
 Both Tensorflow and Keras provide a vast variety of functionality. One important part that is used in this section is the usage of pre-trained models for certain tasks. Keras provides an API for easily loading such models [here](https://keras.io/api/applications/). 
@@ -89,7 +89,7 @@ top_scores = decode_predictions(pred)[0]
 print(top_scores)
 ```
 
-<a id="#04-conv-neural-nets"></a>
+<a id="04-conv-neural-nets"></a>
 ## 8.4 Convolutional neural networks (CNNs)
 
 - Special type of neural network that works with images
@@ -168,7 +168,7 @@ print(top_scores)
 - CS231n: [Convolutional Neural Networks (CNNs / ConvNets)
 ](https://cs231n.github.io/convolutional-networks/)
 
-<a id="#05-transfer-learning"></a>
+<a id="05-transfer-learning"></a>
 ## 8.5 Transfer learning
 
 **Main-Idea**:
@@ -179,7 +179,7 @@ print(top_scores)
 
 The rest of this sub-section is pretty code-heavy so please refer to `8.5 Transfer learning` of this sections notebook [here](./code/section8-notebook.ipynb)
 
-<a id="#06-learning-rate"></a>
+<a id="06-learning-rate"></a>
 ## 8.6 Adjusting the learning rate
 
 ### What's the learning rate
@@ -211,7 +211,7 @@ You can see, that the difference is smaller when comparing training and validati
 
 
 
-<a id="#07-checkpointing"></a>
+<a id="07-checkpointing"></a>
 ## 8.7 Checkpointing
 
 - The process of saving model parameters during training
@@ -247,7 +247,7 @@ history = model.fit(
 
 For working code using those functions please look into Section 8.7 in this weeks notebook [here](./code/section8-notebook.ipynb)
 
-<a id="#08-more-layers"></a>
+<a id="08-more-layers"></a>
 ## 8.8 Adding more layers
 
 - One layer only has a limited capability to learn complex feaures and is therefore limited in its ability to capture complex relations in the data.
@@ -273,7 +273,7 @@ Usually applied after each layer, in order to achieve better performance. This i
 
 For applying extra layers with activation functions, please go to Section 8 of this weeks notebook [here](code/section8-notebook.ipynb)
 
-<a id="#09-dropout"></a>
+<a id="09-dropout"></a>
 ## 8.9 Regularization and dropout
 
 - Dropout is a an important Regularization-technique for the training-procedure of fully connected Neural Networks (with Dense layers)
@@ -286,7 +286,7 @@ For applying extra layers with activation functions, please go to Section 8 of t
 
 
 
-<a id="#10-augmentation"></a>
+<a id="10-augmentation"></a>
 ## 8.10 Data augmentation
 
 - Data augmentation is a technique used in deep learning to improve the quality of data used for training artificial neural networks. It involves artificially increasing the size of the training dataset by adding variations to existing data samples.
@@ -334,12 +334,12 @@ Some guidelines for choosing augmentation-types are:
 **Training with data augmentation is usually slower! Why is that?**
 ![slowdown](imgs/augmentation-slowdown.jpg)
 
-<a id="#11-large-model"></a>
+<a id="11-large-model"></a>
 ## 8.11 Training a larger model
 Everything until now was done with a model that takes inputs of size `(150, 150)` which is 4x faster to train than a model with input-size `(299, 299)`. However this is over now! This subsection is mostly code based and can therefore be found in this sections notebook [here](code/section8-notebook.ipynb).
 
 
-<a id="#12-using-model"></a>
+<a id="12-using-model"></a>
 ## 8.12 Using the model
 
 Example Code for loading, evaluation and prediction:
@@ -389,7 +389,7 @@ print("Class-Probability:\n ", dict(zip(classes, softmax_pred)))
 ```
 
 
-<a id="#13-summary"></a>
+<a id="13-summary"></a>
 ## 8.13 Summary
 
 - We can use pre-trained models for general image classification
@@ -402,7 +402,7 @@ print("Class-Probability:\n ", dict(zip(classes, softmax_pred)))
 - To avoid overfitting, use dropout and augmentation
 
 
-<a id="#14-explore-more"></a>
+<a id="14-explore-more"></a>
 ## 8.14 Explore more
 
 - Add more data, e.g. Zalando etc.
@@ -415,5 +415,8 @@ print("Class-Probability:\n ", dict(zip(classes, softmax_pred)))
 - Hotdog vs. not Hotdog
 - Category of images
 
-<a id="#homework"></a>
+<a id="homework"></a>
 ## 8.15 Homework
+
+- Homework Taks can be found [here](homework/homework.md).
+- Solutions can be found [here](homework/solutions.ipynb).
