@@ -243,19 +243,214 @@ The next step is deploying the created docker image to AWS-Lambda.
 - Testing the function from the AWS Console
 - Pricing
 
+### Deploying the container image to AWS
+Go to the AWS-Lambda section and create a function
+- Choose `Container image` as function type
+- Then choose an arbitrary `Function name`
+- This step requires an `Amazon ECR Image URI` (we don't have that yet!)
+
+How to get a `Amazon ECR Image URI` for your custom docker container
+- Open another tab and search for ECR (Elastic Container Registry)
+- Use the Web-UI or `awscli` (command line tool for AWS) to create a container registry (Here: `aswcli` used)
+
+```bash
+# If not already installed
+pip install awscli
+```
+
+```bash
+# Create repository with a specified name
+aws ecr create-repository --repository-name clothing-tflite-images
+```
+
+If everything worked, the command will result in something like this:
+```json
+{
+    "repository": {
+        "repositoryArn": "arn:aws:ecr:<region>:<registryId>:repository/clothing-tflite",
+        "registryId": "<registryId>",
+        "repositoryName": "clothing-tflite",
+        "repositoryUri": "<registryId>.dkr.ecr.<region>.amazonaws.com/clothing-tflite",
+        "createdAt": "<create-time>",
+        "imageTagMutability": "MUTABLE",
+        "imageScanningConfiguration": {
+            "scanOnPush": false
+        },
+        "encryptionConfiguration": {
+            "encryptionType": "AES256"
+        }
+    }
+}
+```
+The information about the created registry, after it's creation, can be obtained from here:
+```sh
+aws ecr describe-repositories --registry-id <registryId> --repository-names <repositoryName>
+```
+
+
+The created registry (ECR) can now be used to publish docker images to. To do this you have to log-in to ECR, which can be done with:
+```
+$(aws ecr get-login --no-include-email)
+```
+
+To finally push the existing docker image, a specific URI has to be set, to which it is pushed to:
+```sh
+ACCOUNT=<registryId>
+REGION=<region>
+REGISTRY=clothing-tflite-images
+PREFIX=${ACCOUNT}.dkr.ecr.${REGION}.amazonaws.com/${REGISTRY}
+
+TAG=clothing-model-xception-v4-001
+REMOTE_URI=${PREFIX}:${TAG}
+```
+You heve now the full ECR-URI (`echo $REMOTE_URI`) to use for AWS-Lambda.
+
+To finally push the docker image to ECR you have to tag the docker image with the ECR-URI and then push it:
+```sh
+docker tag clothing-model:latest ${REMOTE_URI}
+docker push ${REMOTE_URI}  # Will take some time (depending on internet connection)
+```
+
+Now you can find your pushed docker image in the `clothing-tflie-images`-repository on the AWS-Website. After all this, you are able to use the docker image in the `clothing-prediction` Lmabda-function.
+
+### Continuing the creation process for the Lambda-Function
+![lambda-docker](imgs/lambda.png)
+1. Select `Container image`
+2. Chose adequate name like `clothing-classification`
+3. Copy & Paste the `REMOTE_URI` to `Container image URI`-field or browse & choose from the registry
+4. No other changes to the default parameters have to be made.
+
+<u>Drawback of Docker-based Functions</u>: No Code preview!
+
+### Testing the AWS-Lambda function
+Create a new test for the function with the following content:
+```json
+{
+    "url": "http://bit.ly/mlbookcamp-pants"
+}
+```
+- This will result in an error, because the function did not return a result in under *3 Seconds* (default for Lambda-functions).
+- **Remedy**: Go to `Configuration`-tab and 
+    - increase the `Timeout`-parameter to *30 Seconds*
+    - increase the `Memory`-parameter to *1024 MB* (*1GB*)
+
+
+**Now**: Test succeeds!
+
+![testSuccess](imgs/test_success.png)
+
+The first execution will take ~7 Seconds, but subsequent executions will be faster.
+```sh
+# First Execution (Billed Duration: 17504 ms ~= 17 s)
+REPORT RequestId: <requestID>	Duration: 14317.36 ms	Billed Duration: 17504 ms	Memory Size: 1024 MB	Max Memory Used: 266 MB	Init Duration: 3186.55 ms
+
+# Second Execution (Billed Duration: 2124 ms ~= 2 s)
+REPORT RequestId: <requestID>	Duration: 2123.74 ms	Billed Duration: 2124 ms	Memory Size: 1024 MB	Max Memory Used: 269 MB	
+```
+
+### Billing
+To find out what the of running a Lambda-function is, please check out the following link [here](https://aws.amazon.com/lambda/pricing/).
+- Select the AWS-Region and choose `x86 Price`
+- Look up `Price per ms` for `Memory (MB)` being 1024
+
+```python
+# Code for estimating the usage-price of the Lambda-function
+
+gb_price = 0.0000000167 # Price for 1024 MB
+test_time_ms = 2000     # examplary value of ms
+
+n_images = [1, 10_000, 1_000_000]
+
+for n in n_images:
+    exec_price = gb_price * test_time_ms * n
+    print(f"billed: ${exec_price:f} for {n} images")
+
+# Results:
+#   billed: $0.000033 for 1 images
+#   billed: $0.334000 for 10000 images
+#   billed: $33.400000 for 1000000 images
+```
+
+The AWS-Lambda function is now up and running, however it cant yet be used as a Web-Service. For this you have to "expose" the Lambda-Function as a Web-Service. This will be handled in the next subsection.
+
 
 <a id="07-api-gateway"></a>
 ## 9.7 API Gateway: exposing the lambda function
 
  - Creating and configuring the gateway
 
+### API-Gateway
+- AWS-Service that allows to "expose" other AWS-Services as Web-Sevices
+
+#### Creating an API-Gateway
+- Go to `API-Gateway`-Service and choose `REST API` as API type
+- Choose `New API` and name it `clothes-classification`, then click `Create API`
+- In the `Resources`-window click `Create resource` and name it `predict`
+- Click `Create Method`
+    - Set the **method** to `POST`
+    - Set **Integration type** to `Lambda-Function`
+    - Set **Lambda function** to `clothing-classification`
+
+Now you can query the API with an example for testing:
+
+![apiTest](imgs/apiTest.png)
+
+Now that you can see, that the REST-API works as intended, it is time to expose it!
+- Click on the yellow `Deploy API` button, choose `*New stage*` and name it `test`
+- Click `Deploy` and you will get an URL, that can be used for sending POST-requests to
+
+This REST-API Gateway is now "exposen" and has the previously defined Lambda-Funcation running in the background
+```sh
+# Form of API-Link
+https://<API_NUMBER>.execute-api.<AWS_REGION>.amazonaws.com/test
+```
+
+### New version of the test-script
+
+- [test.py](code/test.py) adapted for contacting the configured AWS REST-API
+- <u>To avoid unwanted access</u>: `AWS_REGION` and `API_NUMBER` can be extracted from the provided link and have to be set beforehand
+- Fallback to local deployment when environment variables not set properly
+
+```python
+import os
+import requests
+
+try:
+    ## AWS Lambda-Function over API-Gateway
+    AWS_REGION = os.environ["AWS_REGION"]
+    API_NUMBER = os.environ["API_NUMBER"]
+    url = f"https://{API_NUMBER}.execute-api.{AWS_REGION}.amazonaws.com/test/predict"
+except:
+    # Local Function (requires docker container running)
+    url = 'http://localhost:8080/2015-03-31/functions/function/invocations'
+
+data = {'url': 'http://bit.ly/mlbookcamp-pants'}
+ 
+result = requests.post(url, json=data).json()
+print(result)
+```
+**Response from the API-Request:**
+```json
+{'dress': -1.8798636198043823, 'hat': -4.756308555603027, 'longsleeve': -2.359534740447998, 'outwear': -1.089263916015625, 'pants': 9.903780937194824, 'shirt': -2.826178550720215, 'shoes': -3.648308277130127, 'shorts': 3.24115252494812, 'skirt': -2.612095594406128, 't-shirt': -4.852035045623779}
+```
+
 
 <a id="08-summary"></a>
 ## 9.8 Summary
 
+- `AWS Lambda` is way of deploying models without having to worry about services $\rightarrow$ Function-as-a-Service (FaaS)
+    - Useful for low-volume requests
+- `TensorFlow Lite` is a lightweight alternative to `TensorFlow` that only focuses on inference
+- To deploy your code, package it in a Docker container
+- Expose the lambda function via `API-Gateway`
+
 <a id="09-explore-more"></a>
 ## 9.9 Explore more
+- There are other ways than `AWS Lambda` to deploy models in a so called `Serverless fashion`
+    - **Google Cloud**: Google Cloud Functions ([Link](https://cloud.google.com/functions))
+    - **Microsoft Azure**: Azure Functions ([Link](https://azure.microsoft.com/en-us/products/functions/))
 
 <a id="homework"></a>
 ## 9.10 Homework
 
+- 
