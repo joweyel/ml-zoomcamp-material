@@ -109,6 +109,72 @@ This part of the section has some code examples that can be found in the accompa
 - Moving the code from notebook to script
 - Testing it locally
 
+### Extracting the code from the notebook of subsection 9.3
+To do this you have to use the following command:
+```bash
+# Generating tensorflow-model.py
+jupyter nbconvert --to script tensorflow-model.ipynb
+```
+
+The last section of the notebook is the relevant code and will remain in the script ([lambda_function.py](code/lambda_function.py)) :
+```python
+#!/usr/bin/env python
+# coding: utf-8
+# Filename: lambda_function.py
+
+import tflite_runtime.interpreter as tflite
+from keras_image_helper import create_preprocessor
+
+# TF-Less preprocessing
+preprocessor = create_preprocessor("xception", target_size=(299, 299))
+
+# Load TF-Lite model and get input-/output-indices for the model
+interpreter = tflite.Interpreter(model_path="clothing_model.tflite")
+interpreter.allocate_tensors()
+
+input_index = interpreter.get_input_details()[0]["index"]
+output_index = interpreter.get_output_details()[0]["index"]
+
+# Loading the data
+# url = "http://bit.ly/mlbookcamp-pants"
+
+classes = [
+    "dress",
+    "hat",
+    "longsleeve",
+    "outwear",
+    "pants",
+    "shirt",
+    "shoes",
+    "shorts",
+    "skirt",
+    "t-shirt"
+]
+
+def predict(url):
+    X = preprocessor.from_url(url)
+    # Running the inference / doing prediction
+    interpreter.set_tensor(input_index, X)
+    interpreter.invoke()
+    preds = interpreter.get_tensor(output_index)
+
+    return dict(zip(classes, preds[0]))
+
+
+def lambda_handler(event, context):
+    url = event["url"]
+    result = predict(url)
+    return result
+```
+
+To test if it is working, you can use the ipython-console use the following code:
+```python
+>> import lambda_function
+>> event = { "url": "http://bit.ly/mlbookcamp-pants" }
+>> lambda_function.lambda_handler(event=evnet, context=None)
+```
+
+The code will not used on AWS Lambda in this form yet. It will be packaged into docker, where all dependencies live, and is then deployed.
 
 <a id="05-docker-image"></a>
 ## 9.5 Preparing a Docker image
@@ -117,6 +183,56 @@ This part of the section has some code examples that can be found in the accompa
 - Preparing the dockerfile
 - Using the right TF-Lite wheel
 
+### Obtaining the base image for AWS Lambda and customizing
+- Go to the AWS-page for Lambda Docker-Images [here](https://gallery.ecr.aws/lambda/python).
+- Find Python 3.8 image and paste it into an empty [Dockerfile](code/Dockerfile) (`public.ecr.aws/lambda/python:3.8`)
+
+```Dockerfile
+FROM public.ecr.aws/lambda/python:3.8
+
+RUN pip install -U pip
+RUN pip install keras-image-helper
+# Adrquate runtime version without having to compile it
+RUN pip install https://github.com/alexeygrigorev/tflite-aws-lambda/raw/main/tflite/tflite_runtime-2.7.0-cp38-cp38-linux_x86_64.whl 
+
+COPY ["clothing_model.tflite", "lambda_function.py", "./"]
+
+CMD [ "lambda_function.lambda_handler" ]
+```
+
+Now that the dockerfile is done, it can be tested with the following [script](code/test.py):
+```python
+import requests
+
+url = 'http://localhost:8080/2015-03-31/functions/function/invocations'
+data = {'url': 'http://bit.ly/mlbookcamp-pants'}
+result = requests.post(url, json=data).json()
+print(result)
+```
+There is still some error left. This is because numpy-arrays can't be JSON-serialized and have to be converted to python-floats. Therefore the following change in [lambda_function](code/lambda_function.py) has to been made:
+
+```python
+...
+# Changes to predict-function
+def predict(url):
+    X = preprocessor.from_url(url)
+    # Running the inference / doing prediction
+    interpreter.set_tensor(input_index, X)
+    interpreter.invoke()
+    preds = interpreter.get_tensor(output_index)
+    float_preds = preds[0].tolist() # float np.ndarray -> float list
+
+    return dict(zip(classes, float_preds))
+...
+```
+
+The `predict()`-function in `lambda_function` will now work 
+```bash
+>> python test.py
+{'dress': -1.8798636198043823, 'hat': -4.756308555603027, 'longsleeve': -2.359534740447998, 'outwear': -1.089263916015625, 'pants': 9.903780937194824, 'shirt': -2.826178550720215, 'shoes': -3.648308277130127, 'shorts': 3.24115252494812, 'skirt': -2.612095594406128, 't-shirt': -4.852035045623779}
+```
+
+The next step is deploying the created docker image to AWS-Lambda.
 
 <a id="06-creating-lambda"></a>
 ## 9.6 Creating the lambda function
