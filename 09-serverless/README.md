@@ -452,5 +452,5 @@ print(result)
 
 <a id="homework"></a>
 ## 9.10 Homework
-
-- 
+- The homework tasks can be found [here](homework/homework.md)
+- The homework solutions can be found [here](homework/solutions.ipynb)

@@ -33,3 +33,5 @@ Machine Learning Engineering repository with my work during the ML Zoomcamp by [
 ## 8. [Neural Networks and Deep Learning](08-neural-networks-and-deep-learning)
 
 ## 9. [Serverless Deep Learning](09-serverless)
+
+## 10. [Kubernetes and TensorFlow Serving](10-kubernetes)
