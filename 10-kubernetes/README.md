@@ -15,29 +15,103 @@
 <a id="01-overview"></a>
 ## 10.1 Overview
 
+- What we will cover this week
+- Two-tier architecture
+
+
+In this Section the same scenario as in previous weeks is used (`clothing classification`) while utilizing `Kubernetes` and `Tensorflow Serving`
+
+### Efficient TensorFlow Serving for image prediction
+- TensorFlow-library written in C++ that is specialized to serve trained models
+- Can only do inference
+
+### Get predictions from uploaded images
+
+**Website (W):**
+- Front-end where a user can provide an Image-URL and then receives a prediction for the given URL
+- (W $\rightarrow$ G): Website passes URL to Gateway
+- (W $\leftarrow$ G): Receive predictions from Gateway in JSON-format and visualizes them
+
+**Gateway (G):**
+- Intermediate service for pre- and post-processing, that uses `Flask`
+- Inference-direction
+    - (W $\rightarrow$ G): Gets URL from Website, downloads the image and preprocesses it
+    - (G $\rightarrow$ T): Sends numpy array to TF-Serving module
+- Result-direction
+    - (G $\leftarrow$ T): Receives predictions with gRPC and processes it
+    - (W $\leftarrow$ G): Sends processed inference-results to the website in JSON-format
+
+**TF-Serving (T):**
+- Runs inference on provided numpy arrays
+- (G $\rightarrow$ T): Receive pre-processed numpy array
+- (G $\leftarrow$ T): Returns predictions with gRPC-protocol
+
+![overview](imgs/overview.jpg)
+
+
 <a id="02-tensorflow-serving"></a>
 ## 10.2 TensorFlow Serving
+
+- The saved model format
+- Running TF-Serving locally with Docker
+- Invoking the model from Jupyter
+
 
 <a id="03-preprocessing"></a>
 ## 10.3 Creating a pre-processing service
 
+- Converting the notebook to a Python script
+- Wrapping the script into a Flask app
+
+
 <a id="04-docker-compose"></a>
 ## 10.4 Running everything locally with Docker-compose
+
+- Preparing the images
+- Installing docker-compose
+- Running the service
+- Testing the service
+
 
 <a id="05-kubernetes-intro"></a>
 ## 10.5 Introduction to Kubernetes
 
+- The anatomy of a Kubernetes cluster
+
+
 <a id="06-kubernetes-simple-service"></a>
 ## 10.6 Deploying a simple service to Kubernetes
+
+- Installing `kubectl`
+- Setting up a local Kubernetes cluster with Kind
+- Create a deployment
+- Creating a service
+
 
 <a id="07-kubernetes-tf-serving"></a>
 ## 10.7 Deploying TensorFlow models to Kubernetes
 
+- Deploying the TF-Service model
+- Deploying the Gateway
+- Testing the service
+
+
 <a id="08-eks"></a>
 ## 10.8 Deploying to EKS
 
+- Creating a EKS cluster on AWS
+- Publishing the image to ECR
+- Configuring kubectl
+
+
 <a id="09-summary"></a>
 ## 10.9 Summary
+
+- TF-Serving is a system for deploying TensorFlow models
+- When using TF-Serving, we need a component for pre-processing
+- Kubernetes is a container orchestration platform
+- To deploy something on Kubernetes, we need to specify a deployment and a service
+- You can use Docker compose and Kind for local experiments
 
 <a id="10-explore-more"></a>
 ## 10.10 Explore more
