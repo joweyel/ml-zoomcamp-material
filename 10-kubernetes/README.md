@@ -116,6 +116,24 @@ input_8 - input
 dense_7 - output
 ```
 
+### Running TF-Serving locally with Docker
+- To run tf-Serving inside a Docker container you have to follow a scecific procedure
+```sh
+docker run -it --rm \
+    -p 8500:8500 \
+    -v "$(pwd)/clothing-model:/models/clothing-model/1" \
+    -e MODEL_NAME="clothing-model" \
+    tensorflow/serving:latest # example in video was :2.7.0
+```
+- **Meaning of all the parameters**
+    - **`-p`**: Maps the host port (`8500:`) to the container port (`:8500`)
+    - **`-v`**: Maps host volume/folder to container volume/folder (host: `$(pwd)/clothing-model`, container: `/models/clothing-model/1`)
+    - **`-e`**: To set environment variable inside container (here: `MODEL_NAME`)
+    - **`tensorflow/serving:tag`**: The TF-Serving Docker-Image (with specified tag)
+- After running the command above the docker container should be up and running. You can now send requests to the TF-Serving model inside the container.
+
+### Invoking the model from Jupyter
+- The relevant code for this can be found inside [this](code/tf-serving-connect.ipynb) notebook.
 
 
 <a id="03-preprocessing"></a>
