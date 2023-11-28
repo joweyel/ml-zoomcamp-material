@@ -56,6 +56,67 @@ In this Section the same scenario as in previous weeks is used (`clothing classi
 - Running TF-Serving locally with Docker
 - Invoking the model from Jupyter
 
+### Converting Keras model into SavedModel format
+- The first step is to download the required model
+```bash
+# Model was saved to the code-directory
+wget -c https://github.com/DataTalksClub/machine-learning-zoomcamp/releases/download/chapter7-model/xception_v4_large_08_0.894.h5 -O code/clothing-model-v4.h5
+```
+- Now the model has to be loaded and converted with the following code:
+```python
+import tensorflow as tf
+from tensorflow import keras
+
+model_path = "clothing-model-v4.h5"
+model = keras.models.load_model(model_path)
+tf.saved_model.save(model, "clothing-model")
+```
+- There will be a newly generated folder, in which the `SavedModel` is saved to. To visualize it's content the utility `tree` can be used:
+```sh
+$ tree clothing-model
+ 
+# Returns:
+# clothing-model
+# ├── assets
+# ├── fingerprint.pb
+# ├── saved_model.pb
+# └── variables
+#     ├── variables.data-00000-of-00001
+#     └── variables.index
+# 
+# 2 directories, 4 files 
+```
+- Here the `saved_model.pb` contains the model-definition and the content of the variable folder contains the weights of the model
+- To get an more in-depth insight into the saved model, the following code can be used:
+```sh
+saved_model_cli show --dir clothing-model --all
+```
+- There is a particular section in the output that is interesting. This is because it contains the model-description, which ist the folowing:
+```yaml
+...
+signature_def['serving_default']:
+  The given SavedModel SignatureDef contains the following input(s):
+    inputs['input_8'] tensor_info:       # 
+        dtype: DT_FLOAT                  # Input
+        shape: (-1, 299, 299, 3)         # 
+        name: serving_default_input_8:0  # 
+  The given SavedModel SignatureDef contains the following output(s):
+    outputs['dense_7'] tensor_info:      #  
+        dtype: DT_FLOAT                  # Output
+        shape: (-1, 10)                  # 
+        name: StatefulPartitionedCall:0  # 
+  Method name is: tensorflow/serving/predict
+...
+```
+- The importance of this particular section comes the need to know the signature of the model when it is invoked (here: `serving_defaults`)
+- For later usage the signature, as well as the input and output tensor-info have to be saved in `model-description.txt`
+```
+serving_default
+input_8 - input
+dense_7 - output
+```
+
+
 
 <a id="03-preprocessing"></a>
 ## 10.3 Creating a pre-processing service
