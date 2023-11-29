@@ -420,3 +420,4 @@ print("Class-Probability:\n ", dict(zip(classes, softmax_pred)))
 
 - Homework Taks can be found [here](homework/homework.md).
 - Solutions can be found [here](homework/solutions.ipynb).
+- Solutions in PyTorch can be found [here](homework/solutions_pytorch.ipynb).
