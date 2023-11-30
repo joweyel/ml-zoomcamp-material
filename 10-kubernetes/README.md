@@ -135,13 +135,56 @@ docker run -it --rm \
 ### Invoking the model from Jupyter
 - The relevant code for this can be found inside [this](code/tf-serving-connect.ipynb) notebook.
 
-
 <a id="03-preprocessing"></a>
 ## 10.3 Creating a pre-processing service
 
 - Converting the notebook to a Python script
 - Wrapping the script into a Flask app
+- Putting everything into Pipenv
 
+### Converting the code from the notebook to a Flask-Application
+- `Previously`: Used Notebook for communicating with TF-Serving service
+- `Now`: Exporting Notebook to Python-Script
+```sh
+jupyter nbconvert --to script tf-serving-connect.ipynb
+```
+- Renaming the code to `gateway.py`. This is the software component from the first subsection that connects Website-Inputs to the TF-Serving model and the other way around.
+
+
+The final code for the `Gateway` can be found [here](code/gateway.py). To utilize communicate with the TF-Serving model you have to use the following code (each command in separate console):
+```sh
+# Starting the TF-Serving service
+docker run -it --rm \
+    -p 8500:8500 \
+    -v "$(pwd)/clothing-model:/models/clothing-model/1" \
+    -e MODEL_NAME="clothing-model" \
+    tensorflow/serving:latest
+
+# Gateway Flask-App for communicating with the TF-Serving model
+python3 gateway.py
+
+# Script for sending requests to the TF-Serving model
+python3 test.py
+```
+The code:
+- `Gateway`: [gateway.py](code/gateway.py)
+- `Test-Script`: [test.py](code/test.py)
+
+
+The results:
+```sh
+{'dress': -1.868287444114685, 'hat': -4.761244297027588, 'longsleeve': -2.316981554031372, 'outwear': -1.0625675916671753, 'pants': 9.887153625488281, 'shirt': -2.8124289512634277, 'shoes': -3.6662802696228027, 'shorts': 3.200357437133789, 'skirt': -2.6023383140563965, 't-shirt': -4.835044860839844}
+```
+
+### Putting everything into Pipenv
+**Step 1:** Creating Pipenv-environment with required dependencies
+```sh
+pipenv install grpcio flask gunicorn keras-image-helper
+# Everythign relevant for TF-Serving using gPRC and protobuf
+pipenv install tensroflow-protobuf
+``` 
+- Using [`tensorflow-protobuf`](https://github.com/alexeygrigorev/tensorflow-protobuf) instead of `TensorFlow` (1.7GB dependency)
+  - [proto.py](code/proto.py) contains everything relevant for tensorflow
 
 <a id="04-docker-compose"></a>
 ## 10.4 Running everything locally with Docker-compose
@@ -150,6 +193,69 @@ docker run -it --rm \
 - Installing docker-compose
 - Running the service
 - Testing the service
+
+**Previously**: website/test-script and Gateway outside docker container and TF-Serving model inside docker container
+**Now**: Putting Gateway and TF-Serving model into docker container
+
+### Preparing the docker-images
+Previously used code for the docker-container of the TF-Serving model
+```sh
+docker run -it --rm \
+    -p 8500:8500 \
+    -v $(pwd)/clothing-model:/models/clothing-model/1 \
+    -e MODEL_NAME=clothing-model \
+    tensorflow/serving:2.7
+```
+Putting everything into a [Dockerfile](code/image-model.dockerfile) to make it reproducible
+```dockerfile
+FROM tensorflow/serving:2.7.0
+ss
+COPY clothing-model /models/clothing-model/1
+ENV MODEL_NAME="clothing-model"
+```
+Building the docker-container:
+```sh
+docker build -t zoomcamp-test-10-model:xception-v4-001 -f image-model.dockerfile .
+```
+Runnung the docker-container
+```sh
+docker run -it --rm \
+    -p 8500:8500 \
+    zoomcamp-test-10-model:xception-v4-001
+```
+Testing the model
+```sh
+pipenv run python3 gateway.py
+```
+
+Now the gateway has to be put in a docker-container:
+
+The [dockerfile](code/image-gateway.dockerfile) for the Gateway
+```dockerfile
+FROM python:3.8.12-slim
+
+RUN pip install pipenv
+WORKDIR /app
+COPY ["Pipfile", "Pipfile.lock", "./"]
+RUN pipenv install --system --deploy
+RUN pip install numpy
+COPY ["gateway.py", "proto.py", "./"]
+EXPOSE 9696
+
+ENTRYPOINT [ "gunicorn", "--bind=0.0.0.0:9696", "gateway:app" ]
+```
+Building the docker-container for the Gateway
+```sh
+docker build -t zoomcamp-10-gateway:001 -f image-gateway.dockerfile .
+```
+Running the docker-container of the Gateway
+```sh
+docker run -it --rm \
+    -p 9696:9696 \
+    zoomcamp-10-gateway:001
+```
+
+***`TODO`***
 
 
 <a id="05-kubernetes-intro"></a>
