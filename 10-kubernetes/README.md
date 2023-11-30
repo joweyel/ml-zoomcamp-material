@@ -123,7 +123,7 @@ docker run -it --rm \
     -p 8500:8500 \
     -v "$(pwd)/clothing-model:/models/clothing-model/1" \
     -e MODEL_NAME="clothing-model" \
-    tensorflow/serving:latest # example in video was :2.7.0
+    tensorflow/serving:2.7.0
 ```
 - **Meaning of all the parameters**
     - **`-p`**: Maps the host port (`8500:`) to the container port (`:8500`)
@@ -158,7 +158,7 @@ docker run -it --rm \
     -p 8500:8500 \
     -v "$(pwd)/clothing-model:/models/clothing-model/1" \
     -e MODEL_NAME="clothing-model" \
-    tensorflow/serving:latest
+    tensorflow/serving:2.7.0
 
 # Gateway Flask-App for communicating with the TF-Serving model
 python3 gateway.py
@@ -255,22 +255,307 @@ docker run -it --rm \
     zoomcamp-10-gateway:001
 ```
 
-***`TODO`***
+Can we just run it now?
+# TF-Serving
+docker run -it --rm \
+    -p 8500:8500 \
+    zoomcamp-test-10-model:xception-v4-001
+```
+```sh
+# Gateway
+docker run -it --rm \
+    -p 9696:9696 \
+    zoomcamp-10-gateway:001
+```
 
+```sh
+# "Website" / Test-Script
+pipenv run python3 test.py
+```
+The answer is NO! The gateway-container has no access to the TF-Serving container and a connection has to be established first.
+```sh
+grpc._channel._InactiveRpcError: <_InactiveRpcError of RPC that terminated with:
+	status = StatusCode.UNAVAILABLE
+	details = "failed to connect to all addresses; last error: UNKNOWN: ipv4:127.0.0.1:8500: Failed to connect to remote host: Connection refused"
+```
+
+The cause of this error is, that the Gateway-container tries to communicate with `http://localhost:8500` which is located inside the gateway docker-container (left). However the address the gateway-service really should connect is the `http://localhost:8500` of the host machine, where the TF-Serving docker-container is connected to.A network connection between the two containers should be established to solve this problem (right).
+![docker-connect](imgs/docker-connect.jpg)
+For the aforementioned purpose the program `docker-compose` is needed. 
+
+#### Installing `docker-compose`: 
+- See [here](https://docs.docker.com/compose/) for more information
+```sh
+# Create folder to place docker-compose binary in
+mkdir -p ${HOME}/bin
+cd ${HOME}/bin
+
+# Download docker-compose
+wget -c https://github.com/docker/compose/releases/download/v2.23.3/docker-compose-$(uname -s)-$(uname -m) -O docker-compose
+chmod +x docker-compose
+```
+To make `docker-compose` accessible systemwide, the path to it has to be added to the `PATH` Environmental-variable:
+```sh
+# To be added to `.bashrc` (on linux)
+export PATH=${HOME}/bin:${PATH}
+```
+Now that `docker-compose` is set up, it can be used to connect Gateway and TF-Serving containers.
+
+For this purpose a small change to [gateway.py](code/gateway.py) has to be made
+```python
+# Instead of hardcoded `host = "localhost:8500"`
+host = os.getenv("TF_SERVING_HOST", default="localhost:8500")
+```
+the gateway docker-container has to be updated (tag: `002`)
+```sh
+docker build -t zoomcamp-10-gateway:002 -f image-gateway.dockerfile .
+```
+
+and a docker-compose-configuration ([docker-compose.yaml](code/docker-compose.yaml)) has to be created:
+```yaml
+version: "3.9"
+services:
+  clothing-model:
+    image: zoomcamp-10-model:xception-v4-001 # TF-Servin container
+  gateway:
+    image: zoomcamp-10-gateway:002 # the updated gateway container
+    environment:
+      - TF_SERVING_HOST="clothing-model:8500" # maps to other service
+    ports:
+      - "9696:9696"
+```
+
+All services inside the network, that the file establishes, are now accessible over their name (here: `clothing-model` and `gateway`). Lets test it!
+
+```sh
+# In the directory, where `docker-compose.yaml` is located
+docker-compose up
+
+# In a different console call
+python3 test.py
+```
+
+The output:
+```python
+{'dress': -1.8798637390136719, 'hat': -4.756310939788818, 'longsleeve': -2.359532356262207, 'outwear': -1.0892645120620728, 'pants': 9.903782844543457, 'shirt': -2.8261783123016357, 'shoes': -3.648311138153076, 'shorts': 3.241154432296753, 'skirt': -2.612095355987549, 't-shirt': -4.852035045623779}
+```
+
+It happened!!!
+![the-wales](imgs/TODO)
 
 <a id="05-kubernetes-intro"></a>
 ## 10.5 Introduction to Kubernetes
 
 - The anatomy of a Kubernetes cluster
 
+### Kubernetes (Abbreviation: K8s)
+- Open-source system for automating deployment, scaling, and management of containerized applications.
+- Can be used for deploying docker-images
+
+### Main concepts
+![k8s-cluster](imgs/k8s-cluster.jpg)
+- **Node**: Server / Computer (EC2 Instance)
+- **Pod**: Docker Container (runs on a Node)
+- **Deployment**: Groups of Pods with the same Image & Configuration
+- **Services**: Entrypoint of an Application. Responsible for routing traffic/requests to all available Pods in a Deployment
+    - **External**: Load-Balancer (Can be accessed by clients outside the K8s-cluster)
+    - **Internal**: Cluster-IP (Only accessible from within the K8s-cluster)
+- **Ingress**: Entrypoint to the cluster
+- **HPA**: Horizontal Pod Autoscaler (adapts number of needed Pods for deployment to handle the load)
 
 <a id="06-kubernetes-simple-service"></a>
 ## 10.6 Deploying a simple service to Kubernetes
 
+- Creating a simple `ping` application in Flask
 - Installing `kubectl`
 - Setting up a local Kubernetes cluster with Kind
 - Create a deployment
 - Creating a service
+
+### Installing Creating a simple `ping` application in Flask
+1. Preparing the Flask-app [ping.py](code/ping/ping.py):
+```sh
+cd ping
+# create Pipfile in sub-dir to use this instead of the prev. used one (from parent-dir)
+touch Pipfile
+# Installing everything relevant Flask
+pipenv install flask gunicorn
+```
+
+2. Creating a [Dockerfile](code/ping/Dockerfile) for the app:
+
+```dockerfile
+FROM python:3.8.12-slim
+
+RUN pip install pipenv
+WORKDIR /app
+COPY ["Pipfile", "Pipfile.lock", "./"]
+RUN pipenv install --system --deploy
+COPY "ping.py" .
+EXPOSE 9696
+
+ENTRYPOINT [ "gunicorn" , "--bind=0.0.0.0:9696", "ping:app"]
+```
+3. Building the docker-container
+```sh
+# Tag-usage advisable when using K8s
+docker build -t ping:v001 .
+```
+4. Running the docker-container
+```sh
+docker run -it --rm -p 9696:9696 ping:v001
+```
+5. Testing the Flask-app
+```sh
+curl localhost:9696/ping
+# Output: PONG
+```
+
+**Next step**: Deploying to K8s
+
+### Installing `kubectl`
+- If you are using *Windows*, `kubectl` is already installed with `docker`
+- On *Linux* you have to use the instructions from K8s itself[here](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/) or from AWS [here](https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html). It is advisable to follow the AWS-Version s.t. it can be used on AWS later.
+```sh
+# Go to the ~/bin/ directory (already in PATH-Variable)
+cd ${HOME}/bin
+# Download `kubectl`
+curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.28.3/2023-11-14/bin/linux/amd64/kubectl
+# Make it executable
+chmod +x kubectl
+# Done!
+```
+
+### Setting up a local Kubernetes cluster with Kind
+1. Installing [`kind`](https://kind.sigs.k8s.io/docs/user/quick-start):
+```sh
+## Linux ##
+cd ${HOME}/bin
+
+# For AMD64 / x86_64
+[ $(uname -m) = x86_64 ] && curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
+# For ARM64
+[ $(uname -m) = aarch64 ] && curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-arm64
+chmod +x ./kind
+```
+2. Create your first cluster!
+```sh
+cd path/to/the/ping/directory/
+# Create the cluster (can take several minutes)
+kind create cluster
+```
+3. Configure `kubectl` to know to access `kind-kind`-cluster
+```sh
+kubectl cluster-info --context kind-kind
+
+### Check to see if it has worked (what services are there) ###
+kubectl get service
+# Output:
+# $ NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+# $ kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   2m28s
+kubectl get pod
+# Output:
+# No resources found in default namespace.
+kubectl get pod
+# Output:
+# No resources found in default namespace.
+```
+
+### Create a deployment
+In this step, you have to create config-files in `yaml`-format
+- For deployment: [deployment.yaml](code/ping/deployment.yaml)
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata: # Name of deployment
+  name: ping-deployment
+spec:
+  replicas: 1 # How many pod's we want to create
+  selector:
+    matchLabels: # All pods that have label app="ping" belong to ping-deployment
+      app: ping
+  template:
+    metadata:
+      labels: # Each pod get's label app="ping"
+        app: ping
+    spec:
+      containers:
+      - name: ping-pod
+        image: ping:v001
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 9696
+```
+Running the deployment in the kubernetes-cluster
+```sh
+# Do it!
+kubectl apply -f deployment.yaml
+
+# Checking the deployment
+kubectl get deployment
+
+# Looking into the created pod's
+kubectl get pod
+
+# Looking into a specific pod (big amount of info!)
+kubectl describe pod ping-deployment-7795dd4bc5-gd9db
+```
+
+The deployment of the cluster has created an error in the first try. This is because ther was no image loaded into the cluster. This will be remedied by doing just that:
+```sh
+kind load docker-image ping:v001
+
+# Checking the pod (should show STATUS "Running")
+kubectl get pod
+```
+
+Befor creating a service, it is advisable to look into if the deployment is working. For this, the `ping`-Pod inside the deployment has to contacted. To do this port-forwarding has to be used:
+```sh
+# Connects port of pod to port on host-machine
+kubectl port-forward ping-deployment-7795dd4bc5-gd9db 9696:9696
+```
+Testing the port-forwarding:
+```sh
+curl localhost:9696/ping
+# Output: 
+# PONG
+```
+
+### Creating a service
+In this step, you have to create config-files in `yaml`-format
+- For service: [service.yaml](code/ping/service.yaml)
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: ping # Name of service
+spec:
+  type: LoadBalancer # Can be accessed from ouside the cluster
+  selector:
+    app: ping # To which pod's it needs to forward requests
+  ports: # Routs requests on port 80 to port 9696 on the pods 
+  - port: 80 # Port in the service (80 is HTTP-port for GET)
+    targetPort: 9696 # Port on pod's
+```
+![service](imgs/service.jpg)
+
+Now the service is ready to be applied:
+```sh
+# Apply!
+kubectl apply -f service.yaml
+
+# Check if it is running
+kubectl get service
+```
+
+Now that the service is up and running, the port-forwarding should be to the service, instead of to the pod directly:
+```sh
+kubectl port-forward service/ping 8080:80
+```
+![service-port](imgs/service-port.jpg)
 
 
 <a id="07-kubernetes-tf-serving"></a>
