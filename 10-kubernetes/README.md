@@ -215,13 +215,13 @@ ENV MODEL_NAME="clothing-model"
 ```
 Building the docker-container:
 ```sh
-docker build -t zoomcamp-test-10-model:xception-v4-001 -f image-model.dockerfile .
+docker build -t zoomcamp-10-model:xception-v4-001 -f image-model.dockerfile .
 ```
 Runnung the docker-container
 ```sh
 docker run -it --rm \
     -p 8500:8500 \
-    zoomcamp-test-10-model:xception-v4-001
+    zoomcamp-10-model:xception-v4-001
 ```
 Testing the model
 ```sh
@@ -257,9 +257,10 @@ docker run -it --rm \
 
 Can we just run it now?
 # TF-Serving
+```sh
 docker run -it --rm \
     -p 8500:8500 \
-    zoomcamp-test-10-model:xception-v4-001
+    zoomcamp-10-model:xception-v4-001
 ```
 ```sh
 # Gateway
@@ -340,9 +341,6 @@ The output:
 {'dress': -1.8798637390136719, 'hat': -4.756310939788818, 'longsleeve': -2.359532356262207, 'outwear': -1.0892645120620728, 'pants': 9.903782844543457, 'shirt': -2.8261783123016357, 'shoes': -3.648311138153076, 'shorts': 3.241154432296753, 'skirt': -2.612095355987549, 't-shirt': -4.852035045623779}
 ```
 
-It happened!!!
-![the-wales](imgs/TODO)
-
 <a id="05-kubernetes-intro"></a>
 ## 10.5 Introduction to Kubernetes
 
@@ -375,6 +373,7 @@ It happened!!!
 ### Installing Creating a simple `ping` application in Flask
 1. Preparing the Flask-app [ping.py](code/ping/ping.py):
 ```sh
+mkdir ping
 cd ping
 # create Pipfile in sub-dir to use this instead of the prev. used one (from parent-dir)
 touch Pipfile
@@ -453,9 +452,6 @@ kubectl get service
 # Output:
 # $ NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
 # $ kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   2m28s
-kubectl get pod
-# Output:
-# No resources found in default namespace.
 kubectl get pod
 # Output:
 # No resources found in default namespace.
@@ -564,6 +560,125 @@ kubectl port-forward service/ping 8080:80
 - Deploying the TF-Service model
 - Deploying the Gateway
 - Testing the service
+
+### Deploying the TF-Service model
+- **Goal**: deploying the TF-Serving pipeline (Gateway and TF-Serving) to kubernetes
+- Root-folder of this sction is the folder above `ping`
+
+What to do for the deployment:
+1. Create folder `kube-config` 
+2. Create deployment-configs for the model ([model-deployment.yaml](code/kube-config/model-deployment.yaml)) inside the folder
+3. Load  docker image of clothing-model to `kind`
+```sh
+kind load docker-image zoomcamp-10-model:xception-v4-001 
+```
+4. Apply the model-deployment config
+```sh
+kubectl apply -f model-deployment.yaml
+```
+5. Testing if the deployed model works
+```sh
+kubectl port-forward tf-serving-clothing-model-7f555c49b5-pj5lq 8500:8500
+```
+Call [gateway.py](code/gateway.py) manually with the following code in the bottom-part of the script:
+```python
+...
+if __name__ == "__main__":
+    url = "http://bit.ly/mlbookcamp-pants"
+    response = predict(url)
+    print(response)
+    # app.run(debug=True, host="0.0.0.0", port=9696)
+```
+
+6. Create and apply a service-config ([model-service.yaml](code/kube-config/model-service.yaml))
+```sh
+kubectl apply -f model-service.yaml
+```
+7. Routeing the requests to the pod over the newly created service
+```sh
+kubectl port-forward service/tf-serving-clothing-model 8500:8500
+```
+8. Re-running the gateway-script for testing purpose
+```sh
+pipenv run python3 gateway.py
+```
+
+The deployment of the TF-Serving model is now done. Now the Gateway module has to be deployed.
+
+### Deploying the Gateway
+1. Creating a deployment-config ([gateway-deployment.yaml](code/kube-config/gateway-deployment.yaml))
+2. Load the required docker-image
+```sh
+kind load docker-image zoomcamp-10-gateway:002
+```
+3. Log-in to ping-pod to test if paths like in the environmental variable in [gateway-deployment.yaml](code/kube-config/gateway-deployment.yaml) work. They have a similar functionality as in docker-compose.
+```sh
+# executing the ping-pod and launching into the bash-console
+kubectl exec -it ping-deployment-6bd7f4bb95-zfs29 -- bash
+```
+- **In the pod**: call the ping-function over `localhost`
+```sh
+# Install curl
+apt update && apt install curl
+# Test with `localhost` -> accessing the program from within the pod
+curl localhost:9696/ping
+# Output: PONG
+```
+- **In the pod**: call the program in the pod over the gateway-service:
+```sh
+curl ping.default.svc.cluster.local/ping
+# Output: PONG
+```
+- **In the pod**: Call the TF-Serving pod
+```sh
+# Installing `telnet` (for testing)
+apt install telnet
+# Connect to the TF-Serving model
+telnet tf-serving-clothing-model.default.svc.cluster.local 8500
+
+# Outputs:
+# Trying 10.96.225.122...
+# Connected to tf-serving-clothing-model.default.svc.cluster.local.
+# Escape character is '^]'.
+@@ Hello TF-Serving
+# Connection closed by foreign host.
+
+### There was a connection established but closed (connection worked). ###
+```
+
+4. Finally deploy the gateway 
+```sh
+kubectl apply -f gateway-deployment.yaml
+```
+
+5. Forwarding of Gateway-Port (then getting prediction)
+```sh
+kubectl port-forward gateway-7d74767d4b-5lpvv 9696:9696
+```
+```sh
+# In another console (should return predictions)
+python3 test.py
+```
+6. Creating Gateway-Service from [gateway-service.yaml](code/kube-config/gateway-service.yaml)
+```sh
+kubectl apply -f gateway-service.yaml
+```
+7. Port forwarding of port 8080 to port 80 of the gateway-service
+```sh
+kubectl port-forward service/gateway 8080:80
+```
+
+With both gateway and the Tf-Serving model deployed + the services for both, you are now able to send requests from the test-script [test.py](code/test.py). The port in the url has to be changed from 9696 to 8080, since the gateway is not directly accessed anymore.
+
+The final prediction:
+```sh
+pipenv run python3 test.py
+```
+
+
+**This Section**: Deploying a kubernetes-cluster locally with `kind`.
+
+**Next Section**: Deploying a kubernetes-cluster on the cloud with `EKS`.
 
 
 <a id="08-eks"></a>

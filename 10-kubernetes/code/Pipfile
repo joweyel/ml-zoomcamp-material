@@ -9,6 +9,7 @@ flask = "*"
 gunicorn = "*"
 keras-image-helper = "*"
 tensorflow-protobuf = "*"
+requests = "*"
 
 [dev-packages]
 
