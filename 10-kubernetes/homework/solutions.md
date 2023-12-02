@@ -19,7 +19,7 @@ export HW10_PATH=$(pwd)
 export HW5_PATH=machine-learning-zoomcamp/cohorts/2023/05-deployment/homework/
 cd ${HW5_PATH} 
 docker build -t zoomcamp-model:hw10 .
-cp q6_test.py ${HW10_PATH}
+cp q6_test.py ${HW10_PATH}/test.py # Test-script renamed
 cd ${HW10_PATH}
 rm -rf machine-learning-zoomcamp  # Remove unused code
 ```
@@ -37,9 +37,9 @@ Run it to test that it's working locally:
 docker run -it --rm -p 9696:9696 zoomcamp-model:hw10
 ```
 
-Sending a request to the model with [q6_test.py](q6_test.py):
+Sending a request to the model with [test.py](test.py):
 ```bash
-python3 q6_test.py
+python3 test.py
 ```
 
 You should see this:
@@ -155,10 +155,18 @@ Replace `<Image>`, `<Memory>`, `<CPU>`, `<Port>` with the correct values.
 
 What is the value for `<Port>`?
 
+Apply this deployment using the appropriate command and get a list of running Pods. 
+You can see one running Pod.
+
 **Answer**: 
 - Port: `9696` (used in the predict script [q6_predict.py](q6_predict.py)) inside the docker-container.
 - The deployment-config with filled in values can be found [here](deployment.yaml).
 
+The (partial) output of `kubectl get pod`:
+```bash
+NAME                                         READY   STATUS    RESTARTS       AGE
+credit-65ccb78b69-rxxg6                      1/1     Running   0              8s
+```
 
 ## Question 6
 
@@ -198,3 +206,98 @@ to the port 80 on the service:
 ```bash
 kubectl port-forward service/<Service name> 9696:80
 ```
+
+The Test:
+```bash
+kubectl port-forward service/credit 9696:80
+
+# In another console
+python3 test.py
+
+# Outputs:
+# {'get_credit': True, 'get_credit_probability': 0.726936946355423}
+```
+The Test succeded!
+
+## Autoscaling
+
+Now we're going to use a [HorizontalPodAutoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/) 
+(HPA for short) that automatically updates a workload resource (such as our deployment), 
+with the aim of automatically scaling the workload to match demand.
+
+Use the following command to create the HPA:
+
+```bash
+kubectl autoscale deployment credit --name credit-hpa --cpu-percent=20 --min=1 --max=3
+```
+
+You can check the current status of the new HPA by running:
+
+```bash
+kubectl get hpa
+```
+
+The output should be similar to the next:
+
+```bash
+NAME         REFERENCE           TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
+credit-hpa   Deployment/credit   1%/20%    1         3         1          27s
+```
+
+**My output:**
+```bash
+NAME         REFERENCE           TARGETS         MINPODS   MAXPODS   REPLICAS   AGE
+credit-hpa   Deployment/credit   <unknown>/20%   1         3         1          18s
+```
+
+`TARGET` column shows the average CPU consumption across all the Pods controlled by the corresponding deployment.
+Current CPU consumption is about 0% as there are no clients sending requests to the server.
+> 
+>Note: In case the HPA instance doesn't run properly, try to install the latest Metrics Server release 
+> from the `components.yaml` manifest:
+> ```bash
+> kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+>```
+
+## Increase the load
+Let's see how the autoscaler reacts to increasing the load. To do this, we can slightly modify the existing
+`test.py` script by putting the operator that sends the request to the credit service into a loop.
+
+```python
+while True:
+    sleep(0.1)
+    response = requests.post(url, json=client).json()
+    print(response)
+```
+
+```bash
+# Re-run if the forwarding was closed
+kubectl port-forward service/credit 9696:80
+
+# In another console
+python3 test.py
+```
+
+The outputs:
+```yaml
+...
+{'get_credit': True, 'get_credit_probability': 0.726936946355423}
+{'get_credit': True, 'get_credit_probability': 0.726936946355423}
+{'get_credit': True, 'get_credit_probability': 0.726936946355423}
+{'get_credit': True, 'get_credit_probability': 0.726936946355423}
+{'get_credit': True, 'get_credit_probability': 0.726936946355423}
+...
+```
+
+
+## Question 7 (optional)
+
+Run `kubectl get hpa credit-hpa --watch` command to monitor how the autoscaler performs. 
+Within a minute or so, you should see the higher CPU load; and then - more replicas. 
+What was the maximum amount of the replicas during this test?
+
+
+* 1
+* 2
+* 3
+* 4

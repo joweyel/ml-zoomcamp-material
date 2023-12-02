@@ -657,7 +657,7 @@ kubectl port-forward gateway-7d74767d4b-5lpvv 9696:9696
 ```
 ```sh
 # In another console (should return predictions)
-python3 test.py
+pipenv run python3 test.py
 ```
 6. Creating Gateway-Service from [gateway-service.yaml](code/kube-config/gateway-service.yaml)
 ```sh
