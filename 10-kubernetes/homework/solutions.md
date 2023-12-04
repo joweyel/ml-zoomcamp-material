@@ -246,8 +246,8 @@ credit-hpa   Deployment/credit   1%/20%    1         3         1          27s
 
 **My output:**
 ```bash
-NAME         REFERENCE           TARGETS         MINPODS   MAXPODS   REPLICAS   AGE
-credit-hpa   Deployment/credit   <unknown>/20%   1         3         1          18s
+NAME         REFERENCE           TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
+credit-hpa   Deployment/credit   1%/20%    1         3         1          11s
 ```
 
 `TARGET` column shows the average CPU consumption across all the Pods controlled by the corresponding deployment.
@@ -301,3 +301,48 @@ What was the maximum amount of the replicas during this test?
 * 2
 * 3
 * 4
+
+**Code used in this Question:**
+Port-Forwarding to credit-service
+```bash
+kubectl port-forward service/credit 9696:80
+```
+
+**Watching the autoscaler:**
+```bash
+kubectl get hpa credit-hpa --watch
+```
+Output from the command above:
+```bash
+NAME         REFERENCE           TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
+credit-hpa   Deployment/credit   1%/20%    1         3         1          29m
+credit-hpa   Deployment/credit   1%/20%    1         3         1          29m
+credit-hpa   Deployment/credit   34%/20%   1         3         1          30m
+credit-hpa   Deployment/credit   34%/20%   1         3         2          30m
+credit-hpa   Deployment/credit   18%/20%   1         3         2          31m
+credit-hpa   Deployment/credit   19%/20%   1         3         2          32m
+credit-hpa   Deployment/credit   17%/20%   1         3         2          33m
+credit-hpa   Deployment/credit   19%/20%   1         3         2          34m
+credit-hpa   Deployment/credit   17%/20%   1         3         2          35m
+```
+
+Running the test-script (sends frequent requests to the client-service):
+```bash
+python3 test.py
+```
+```python
+# test.py
+import requests
+from time import sleep
+
+url = "http://localhost:9696/predict"
+
+client = {"job": "retired", "duration": 445, "poutcome": "success"}
+
+while True:
+    sleep(0.1)
+    response = requests.post(url, json=client).json()
+    print(response)
+```
+
+**Answer:** 2
