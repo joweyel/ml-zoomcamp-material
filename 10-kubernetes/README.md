@@ -9,8 +9,7 @@
 - 10.7 [Deploying TensorFlow models to Kubernetes](#07-kubernetes-tf-serving)
 - 10.8 [Deploying to EKS](#08-eks)
 - 10.9 [Summary](#09-summary)
-- 10.10 [Explore more](#10-explore-more)
-- 10.11 [Homework](#homework)
+- 10.10 [Homework](#homework)
 
 <a id="01-overview"></a>
 ## 10.1 Overview
@@ -688,6 +687,8 @@ pipenv run python3 test.py
 - Publishing the image to ECR
 - Configuring kubectl
 
+A summary of this section can be found [here](https://github.com/joweyel/machine-learning-zoomcamp/blob/master/10-kubernetes/08-eks.md).
+
 
 <a id="09-summary"></a>
 ## 10.9 Summary
@@ -698,8 +699,9 @@ pipenv run python3 test.py
 - To deploy something on Kubernetes, we need to specify a deployment and a service
 - You can use Docker compose and Kind for local experiments
 
-<a id="10-explore-more"></a>
-## 10.10 Explore more
 
 <a id="homework"></a>
 ## 10.11 Homework
+- Questions can be found [here](homework/homework.md)
+- Solutions can be found [here](homework/solutions.md)
+  - The code of the solution is in the sub-folder [homework](homework/).
